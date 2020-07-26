@@ -1,5 +1,5 @@
 // Imports
-const http = require('http');
+import http from 'http';
 
 // HTTP server setup
 const server = http.createServer((req, res) => {
