@@ -1,7 +1,7 @@
 {
-  "name": "ts-babel-starter",
-  "version": "0.3.1",
-  "description": "A custom starter template for building Node.js Apps with TypeScript and Babel",
+  "name": "fantasky",
+  "version": "0.0.0",
+  "description": "A simple task management app",
   "main": "dist/index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist",
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZTMowrer947/ts-babel-starter.git"
+    "url": "git+https://github.com/ZTMowrer947/fantasky-app.git"
   },
   "author": "Zackery Mowrer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ZTMowrer947/ts-babel-starter/issues"
+    "url": "https://github.com/ZTMowrer947/fantasky-app/issues"
   },
-  "homepage": "https://github.com/ZTMowrer947/ts-babel-starter#readme",
+  "homepage": "https://github.com/ZTMowrer947/fantasky-app#readme",
   "dependencies": {
     "core-js": "3",
     "cross-env": "^7.0.2",
