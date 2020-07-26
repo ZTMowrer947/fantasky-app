@@ -1,13 +1,9 @@
-# ts-babel-starter
+# Fan*task*y
 
-A custom starter template for building Node.js Apps with TypeScript and Babel
+This application was created by the Coding Club Task Force of the [West Virginia Coding Club](https://wvcoding.org) for the 2020 Congressional App Challenge, representing the 2nd district of West Virginia.
 
-## What's included
-
-- TypeScript (Typechecking)
-- Babel (Transpilation)
-- Prettier (Code styling)
-- ESLint (Code linting)
-- Jest (Unit testing)
-- Gulp (Build workflow)
-- Nodemon (Auto-reload in development)
+## Authors
+Zack Mowrer
+Mariam Kisto
+Chase Steorts
+Caleb Newell
