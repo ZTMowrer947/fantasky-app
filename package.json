@@ -25,6 +25,7 @@
   "dependencies": {
     "core-js": "3",
     "cross-env": "^7.0.2",
+    "dotenv": "^8.2.0",
     "regenerator-runtime": "^0.13.5",
     "sequelize": "^6.3.3"
   },
