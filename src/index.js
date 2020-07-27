@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 import http from 'http';
 
-import db from './models';
+import { sequelize } from './models';
 
 // HTTP server setup
 const server = http.createServer((req, res) => {
@@ -34,7 +34,7 @@ server.once('listening', () => {
   console.log('The Fantasky API server is now running on port 5000...');
 
   // Test database connection
-  db.sequelize
+  sequelize
     .authenticate()
     .then(() => console.log('Database connection successful.'))
     .catch((error) => {

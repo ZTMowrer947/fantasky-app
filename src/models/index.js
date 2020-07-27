@@ -3,7 +3,7 @@
 // Imports
 import { Sequelize } from 'sequelize';
 
-import config from '../config/config';
+import * as config from '../config/config';
 
 // Configuration setup
 const env = process.env.NODE_ENV ?? 'devlelopment';
