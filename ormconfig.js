@@ -40,6 +40,10 @@ module.exports = [
       path.resolve(projectSourceDir, 'entities', '**', '*.js'),
       path.resolve(projectSourceDir, 'entities', '**', '*.ts'),
     ],
+    migrations: [
+      path.resolve(projectSourceDir, 'migrations', '**', '*.js'),
+      path.resolve(projectSourceDir, 'migrations', '**', '*.ts'),
+    ],
     cli: {
       entitiesDir: path.join('src', 'entities'),
       migrationsDir: path.join('src', 'migrations'),
@@ -64,6 +68,10 @@ module.exports = [
     entities: [
       path.resolve(projectDistDir, 'entities', '**', '*.js'),
       path.resolve(projectDistDir, 'entities', '**', '*.ts'),
+    ],
+    migrations: [
+      path.resolve(projectDistDir, 'migrations', '**', '*.js'),
+      path.resolve(projectDistDir, 'migrations', '**', '*.ts'),
     ],
     cli: {
       entitiesDir: path.join('dist', 'entities'),
