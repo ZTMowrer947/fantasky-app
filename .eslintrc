@@ -26,7 +26,8 @@
         "ts": "never",
         "tsx": "never"
       }
-    ]
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
@@ -47,7 +48,10 @@
       "files": ["**/*.ts?(x)"],
       "extends": [
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
-      ]
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "error"
+      }
     },
     {
       "files": [
