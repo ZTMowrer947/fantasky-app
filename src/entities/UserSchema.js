@@ -14,13 +14,16 @@ const UserSchema = new EntitySchema({
     createdAt: {
       type: Date,
       createDate: true,
-      default: () => 'NOW()',
       select: false,
     },
     updatedAt: {
       type: Date,
       updateDate: true,
-      default: () => 'NOW()',
+      select: false,
+    },
+    deletedAt: {
+      type: Date,
+      deleteDate: true,
       select: false,
     },
     firstName: {
