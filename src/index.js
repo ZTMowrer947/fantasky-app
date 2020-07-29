@@ -2,27 +2,12 @@
 import 'dotenv/config';
 
 import http from 'http';
+
+import app from './app';
 import bootstrapDatabase from './bootstrapDatabase';
 
 // HTTP server setup
-const server = http.createServer((req, res) => {
-  // Define response body
-  const body = {
-    message: 'The Fantasky API is not yet implemented.',
-  };
-
-  // If the headers have not already been sent,
-  if (!res.headersSent) {
-    // Write header with 503 Service Unavailable
-    res.writeHead(503, {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    });
-  }
-
-  // End response with body
-  res.end(body);
-});
+const server = http.createServer(app);
 
 // Listen on port 5000
 server.listen(5000);
