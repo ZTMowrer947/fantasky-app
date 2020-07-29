@@ -6,7 +6,7 @@ const UserSchema = new EntitySchema({
   name: 'User',
   columns: {
     id: {
-      type: 'integer',
+      type: 'bigint',
       primary: true,
       generated: true,
       nullable: false,
@@ -47,6 +47,12 @@ const UserSchema = new EntitySchema({
     dob: {
       type: Date,
       nullable: false,
+    },
+  },
+  relations: {
+    goals: {
+      type: 'one-to-many',
+      target: 'Goal',
     },
   },
 });
