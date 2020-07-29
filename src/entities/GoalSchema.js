@@ -1,31 +1,13 @@
 // Imports
 import { EntitySchema } from 'typeorm';
 
+import TimestampedSchemaFragment from './TimestampedSchemaFragment';
+
 // Entity schema
 const GoalSchema = new EntitySchema({
   name: 'Goal',
   columns: {
-    id: {
-      type: 'bigint',
-      primary: true,
-      generated: true,
-      nullable: false,
-    },
-    createdAt: {
-      type: Date,
-      createDate: true,
-      select: false,
-    },
-    updatedAt: {
-      type: Date,
-      updateDate: true,
-      select: false,
-    },
-    deletedAt: {
-      type: Date,
-      deleteDate: true,
-      select: false,
-    },
+    ...TimestampedSchemaFragment,
     name: {
       type: 'varchar',
       nullable: false,
