@@ -17,7 +17,7 @@ export default class CreateGoal1596029603420 {
       columns: [
         {
           name: 'id',
-          type: 'integer',
+          type: 'bigint',
           isPrimary: true,
           isGenerated: true,
           isNullable: false,
