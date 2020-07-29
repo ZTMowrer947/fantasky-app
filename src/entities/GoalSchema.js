@@ -34,6 +34,11 @@ const GoalSchema = new EntitySchema({
       onDelete: 'CASCADE',
       nullable: false,
     },
+    completedDays: {
+      type: 'many-to-many',
+      target: 'Day',
+      joinTable: true,
+    },
   },
   indices: [
     {
