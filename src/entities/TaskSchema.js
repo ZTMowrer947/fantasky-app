@@ -4,8 +4,8 @@ import { EntitySchema } from 'typeorm';
 import TimestampedSchemaFragment from './TimestampedSchemaFragment';
 
 // Entity schema
-const GoalSchema = new EntitySchema({
-  name: 'Goal',
+const TaskSchema = new EntitySchema({
+  name: 'Task',
   columns: {
     ...TimestampedSchemaFragment,
     name: {
@@ -48,4 +48,4 @@ const GoalSchema = new EntitySchema({
 });
 
 // Exports
-export default GoalSchema;
+export default TaskSchema;

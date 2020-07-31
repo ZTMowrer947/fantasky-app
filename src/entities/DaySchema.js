@@ -14,9 +14,9 @@ const DaySchema = new EntitySchema({
     },
   },
   relations: {
-    goalsCompleted: {
+    tasksCompleted: {
       type: 'many-to-many',
-      target: 'Goal',
+      target: 'Task',
     },
   },
   indices: [

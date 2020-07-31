@@ -2,7 +2,7 @@
 import { createConnection, getConnectionOptions } from 'typeorm';
 
 import DaySchema from './entities/DaySchema';
-import GoalSchema from './entities/GoalSchema';
+import TaskSchema from './entities/TaskSchema';
 import UserSchema from './entities/UserSchema';
 
 // Environment helper
@@ -37,7 +37,7 @@ async function bootstrapDatabase() {
   // Extend base configuration
   const options = {
     ...baseOptions,
-    entities: [DaySchema, GoalSchema, UserSchema],
+    entities: [DaySchema, TaskSchema, UserSchema],
   };
 
   // Create database connection with selected options

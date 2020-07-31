@@ -32,9 +32,9 @@ const UserSchema = new EntitySchema({
     },
   },
   relations: {
-    goals: {
+    tasks: {
       type: 'one-to-many',
-      target: 'Goal',
+      target: 'Task',
     },
   },
 });
