@@ -51,8 +51,13 @@ module.exports = [
   },
   {
     name: 'test',
-    type: 'sqlite',
-    database: ':memory:',
+    type: 'postgres',
+    host: process.env.TEST_DB_HOST,
+    port: Number.parseInt(process.env.TEST_DB_PORT || '5432', 10),
+    username: process.env.TEST_DB_USER,
+    password: process.env.TEST_DB_PASS,
+    database: process.env.TEST_DB_NAME,
+    ssl: tlsOptions,
     logging: false,
   },
   {

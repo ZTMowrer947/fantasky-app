@@ -33,7 +33,6 @@
     "pug": "^3.0.0",
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.5",
-    "sqlite3": "^5.0.0",
     "typeorm": "^0.2.25"
   },
   "devDependencies": {
