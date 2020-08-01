@@ -1,4 +1,7 @@
 // Imports
+import argon2 from 'argon2';
+import os from 'os';
+
 import UserSchema from '../entities/UserSchema';
 
 // Service
@@ -29,12 +32,20 @@ class UserService {
   }
 
   async create(userDto) {
+    // Hash password
+    const passwordHash = await argon2.hash(userDto.password, {
+      hashLength: 48,
+      parallelism: os.cpus().length,
+      memoryCost: 2 ** 16,
+      timeCost: 10,
+    });
+
     // Define new user
     const user = {
       firstName: userDto.firstName,
       lastName: userDto.lastName,
       emailAddress: userDto.emailAddress,
-      password: userDto.password,
+      password: passwordHash,
       dob: userDto.dob,
     };
 
@@ -43,20 +54,23 @@ class UserService {
   }
 
   async update(user, updateDto) {
+    // Hash new password
+    const passwordHash = await argon2.hash(updateDto.password, {
+      hashLength: 48,
+      parallelism: os.cpus().length,
+      memoryCost: 2 ** 16,
+      timeCost: 10,
+    });
+
     // Preload user data
     const updatedUser = await this.#repository.preload({
       id: user.id,
       firstName: updateDto.firstName,
       lastName: updateDto.lastName,
       emailAddress: updateDto.emailAddress,
-      password: updateDto.password,
+      password: passwordHash,
       dob: updateDto.dob,
     });
-
-    // If user was not found, throw error
-    if (!updatedUser) {
-      throw new Error(`Could not find user with ID "${user.id}"`);
-    }
 
     // Otherwise, persist updated user to database
     await this.#repository.save(updatedUser);
