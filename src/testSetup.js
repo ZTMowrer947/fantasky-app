@@ -8,7 +8,10 @@ import bootstrapDatabase, {
 // Test setup
 beforeAll(async () => {
   // Initialize database connection
-  await bootstrapDatabase();
+  const connection = await bootstrapDatabase();
+
+  // Drop and synchronize entity tables
+  await connection.synchronize(true);
 });
 
 // Test teardown
