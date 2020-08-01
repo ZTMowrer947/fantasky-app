@@ -56,7 +56,8 @@
     {
       "files": [
         "**/__tests__/**/*.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[tj]s?(x)"
+        "**/?(*.)+(spec|test).[tj]s?(x)",
+        "./src/testSetup.js"
       ],
       "extends": ["plugin:jest/recommended"],
       "env": {

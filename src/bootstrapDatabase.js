@@ -18,7 +18,7 @@ function selectDatabaseEnvironment() {
     case 'test':
     case 'testing':
     case 'staging':
-      return 'testing';
+      return 'test';
 
     // Any other environment falls back to development
     default:
