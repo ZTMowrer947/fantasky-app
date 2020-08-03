@@ -2,6 +2,8 @@
 import express from 'express';
 import path from 'path';
 
+import api from './api';
+
 // Express app setup
 const app = express();
 
@@ -17,6 +19,7 @@ app.set('views', viewDir);
 
 // Middleware
 app.use('/public', express.static(publicDir));
+app.use('/api', api);
 
 // Exports
 export default app;
