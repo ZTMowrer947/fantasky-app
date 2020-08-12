@@ -14,18 +14,8 @@ export default class ModifyUserIdToUseBigInt1596025575369 {
     // Find user table
     const userTable = await queryRunner.getTable('user');
 
-    // If table was not found, throw error
-    if (!userTable) {
-      throw new Error('Could not find user table for migration');
-    }
-
     // Find id column
     const oldIdCol = userTable.columns.find((col) => col.name === 'id');
-
-    // If column was not found, throw error
-    if (!oldIdCol) {
-      throw new Error('Could not find id column in user table');
-    }
 
     // Drop primary key constraint and id column
     await queryRunner.dropPrimaryKey(userTable);
@@ -51,18 +41,8 @@ export default class ModifyUserIdToUseBigInt1596025575369 {
     // Find user table
     const userTable = await queryRunner.getTable('user');
 
-    // If table was not found, throw error
-    if (!userTable) {
-      throw new Error('Could not find user table for migration');
-    }
-
     // Find id column
     const oldIdCol = userTable.columns.find((col) => col.name === 'id');
-
-    // If column was not found, throw error
-    if (!oldIdCol) {
-      throw new Error('Could not find id column in user table');
-    }
 
     // Drop primary key constraint and id column
     await queryRunner.dropPrimaryKey(userTable);

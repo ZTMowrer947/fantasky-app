@@ -99,30 +99,15 @@ export default class CreateGoal1596029603420 {
     // Find goal table
     const goalTable = await queryRunner.getTable('goal');
 
-    // If table was not found, throw error
-    if (!goalTable) {
-      throw new Error('Could not find goal table');
-    }
-
     // Find name index
     const nameIdx = goalTable.indices.find((idx) =>
       idx.columnNames.includes('name')
     );
 
-    // If index was not found, throw error
-    if (!nameIdx) {
-      throw new Error('Could not find name index');
-    }
-
     // Find foreign key to user table
     const creatorFk = goalTable.foreignKeys.find((fk) =>
       fk.columnNames.includes('creatorId')
     );
-
-    // If foreign key was not found, throw error
-    if (!creatorFk) {
-      throw new Error('Could not find foreign key to user table');
-    }
 
     // Drop foreign key
     await queryRunner.dropForeignKey(goalTable, creatorFk);

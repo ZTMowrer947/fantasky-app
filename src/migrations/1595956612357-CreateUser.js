@@ -79,11 +79,6 @@ export default class CreateUser1595956612357 {
     // Find user table
     const userTable = await queryRunner.getTable('user');
 
-    // If table was not found, throw error
-    if (!userTable) {
-      throw new Error('Could not find user table for reversion');
-    }
-
     // Drop user table
     await queryRunner.dropTable(userTable);
   }

@@ -106,11 +106,6 @@ export default class CreateDay1596039766405 {
       'goal_completed_days_day'
     );
 
-    // Ensure tables were found
-    if (!dayTable || !goalDayJoinTable) {
-      throw new Error('Could not find day or join table');
-    }
-
     // Find indices
     const dateIdx = dayTable.indices.find((idx) =>
       idx.columnNames.includes('date')
@@ -122,11 +117,6 @@ export default class CreateDay1596039766405 {
       idx.columnNames.includes('dayId')
     );
 
-    // Ensure indices were found
-    if (!dateIdx || !goalIdx || !dayIdx) {
-      throw new Error('Could not find indices to revert');
-    }
-
     // Find foreign keys
     const goalFk = goalDayJoinTable.foreignKeys.find((fk) =>
       fk.columnNames.includes('goalId')
@@ -134,11 +124,6 @@ export default class CreateDay1596039766405 {
     const dayFk = goalDayJoinTable.foreignKeys.find((fk) =>
       fk.columnNames.includes('dayId')
     );
-
-    // Ensure foreign keys were found
-    if (!goalFk || !dayFk) {
-      throw new Error('Could not find foreign keys to revert');
-    }
 
     // Drop foreign keys
     await queryRunner.dropForeignKeys(goalDayJoinTable, [goalFk, dayFk]);
