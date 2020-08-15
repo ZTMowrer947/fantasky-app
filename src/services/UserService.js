@@ -77,14 +77,8 @@ class UserService {
   }
 
   async delete(user) {
-    // Create deletion query
-    const query = this.#repository
-      .createQueryBuilder('user')
-      .softDelete()
-      .where('user.id = :id', { id: user.id });
-
-    // Execute query
-    await query.execute();
+    // Soft-delete user
+    await this.#repository.softRemove(user);
   }
 }
 
