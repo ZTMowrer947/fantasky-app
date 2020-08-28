@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 
 import api from './api';
+import closeDatabaseOnError from './middleware/closeDatabaseOnError';
 
 // Express app setup
 const app = express();
@@ -20,6 +21,9 @@ app.set('views', viewDir);
 // Middleware
 app.use('/public', express.static(publicDir));
 app.use('/api', api);
+
+// Error handlers
+app.use(closeDatabaseOnError);
 
 // Exports
 export default app;
