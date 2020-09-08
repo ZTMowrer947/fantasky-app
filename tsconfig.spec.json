@@ -9,5 +9,5 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["./src/**/__tests__/**/*", "./src/testSetup.js"]
+  "include": ["./src/**/__tests__/**/*", "./src/**/__mocks__/**/*", "./src/testSetup.js"]
 }
