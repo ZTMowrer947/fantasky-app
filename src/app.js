@@ -1,5 +1,6 @@
 // Imports
 import express from 'express';
+import nunjucks from 'nunjucks';
 import path from 'path';
 
 import api from './api';
@@ -15,8 +16,13 @@ const publicDir = path.resolve(projectRootDir, 'public');
 
 // App configuration
 app.disable('x-powered-by');
-app.set('view engine', 'pug');
-app.set('views', viewDir);
+
+nunjucks.configure(viewDir, {
+  autoescape: true,
+  express: app,
+});
+
+app.set('view engine', 'njk');
 
 // Middleware
 app.use('/public', express.static(publicDir));
