@@ -19,6 +19,7 @@ app.disable('x-powered-by');
 
 nunjucks.configure(viewDir, {
   autoescape: true,
+  watch: true,
   express: app,
 });
 
