@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { checkSchema } from 'express-validator';
+import passport from 'passport';
 
 import UserSchema from '../../entities/UserSchema';
 import database from '../../middleware/database';
@@ -117,6 +118,12 @@ const userValidationSchema = {
 // Routes
 userRoutes
   .route('/') // /api/users
+  .get(
+    passport.authenticate('basic', { session: false, failWithError: true }),
+    (req, res) => {
+      res.json(req.user);
+    }
+  )
   .post(
     database,
     checkSchema(userValidationSchema),
