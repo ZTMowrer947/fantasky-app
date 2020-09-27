@@ -20,6 +20,27 @@ class UserService {
 
   /**
    * @param {string} emailAddress
+   * @param {string} password
+   */
+  async verifyCredentials(emailAddress, password) {
+    // Create query for password hash of user with given email
+    const query = this.#repository
+      .createQueryBuilder('user')
+      .select('user.password', 'password')
+      .where('user.emailAddress = :emailAddress', { emailAddress });
+
+    // Execute query and return raw data
+    const userData = await query.getRawOne();
+
+    // If no user exists with the given email, return false
+    if (!userData) return false;
+
+    // Otherwise, verify that given password matches database hash
+    return argon2.verify(userData.password, password);
+  }
+
+  /**
+   * @param {string} emailAddress
    */
   async getByEmail(emailAddress) {
     // Create query for user

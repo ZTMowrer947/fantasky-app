@@ -24,6 +24,82 @@ function setupService() {
 
 // Test Suite
 describe('User service', () => {
+  describe('.verifyCredentials method', () => {
+    it('should return false if no user exists with the given email address', async () => {
+      // Setup service
+      const { service } = setupService();
+
+      // Define email and password of nonexistent user
+      const emailAddress = 'wdgaster@void.ut';
+      const password = '';
+
+      // Expect credential verification to fail
+      await expect(
+        service.verifyCredentials(emailAddress, password)
+      ).resolves.toBeFalsy();
+    });
+
+    it('should return false if the password is incorrect', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get user repository
+      const repository = manager.getRepository(UserSchema);
+
+      // Define test user
+      const user = {
+        firstName: 'John',
+        lastName: 'Doe',
+        emailAddress: 'john@example.tld',
+        password: await argon2.hash('johnpassword'),
+        dob: new Date('01/01/1970'),
+      };
+
+      // Persist user in database and retrieve ID
+      const persistedUser = await repository.save(user);
+
+      // Define incorrect password
+      const password = 'wrongpassword';
+
+      // Expect credential verification to fail
+      await expect(
+        service.verifyCredentials(persistedUser.emailAddress, password)
+      ).resolves.toBeFalsy();
+
+      // Remove persisted user
+      await repository.remove(persistedUser);
+    });
+
+    it("should return true if the credentials match a user's data", async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get user repository
+      const repository = manager.getRepository(UserSchema);
+
+      // Define password and test user
+      const password = 'johnpassword';
+      const user = {
+        firstName: 'John',
+        lastName: 'Doe',
+        emailAddress: 'john@example.tld',
+        password: await argon2.hash(password),
+        dob: new Date('01/01/1970'),
+      };
+
+      // Persist user in database and retrieve ID
+      const persistedUser = await repository.save(user);
+
+      // Expect credential verification to succeed
+      await expect(
+        service.verifyCredentials(persistedUser.emailAddress, password)
+      ).resolves.toBeTruthy();
+
+      // Remove persisted user
+      await repository.remove(persistedUser);
+    });
+  });
+
   describe('.getByEmail method', () => {
     it("should return a given user's data if one exists with the provided email address", async () => {
       // Setup service
