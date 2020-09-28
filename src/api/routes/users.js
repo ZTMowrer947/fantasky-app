@@ -119,7 +119,7 @@ const userValidationSchema = {
 userRoutes
   .route('/') // /api/users
   .get(
-    passport.authenticate('basic', { session: false, failWithError: true }),
+    passport.authenticate('jwt', { session: false, failWithError: true }),
     (req, res) => {
       res.json(req.user);
     }
