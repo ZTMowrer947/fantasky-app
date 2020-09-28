@@ -5,6 +5,7 @@ import passport from 'passport';
 import { BasicStrategy } from 'passport-http';
 
 import apiErrorHandler from './middleware/apiErrorHandler';
+import tokenRoutes from './routes/token';
 import userRoutes from './routes/users';
 import bootstrapDatabase from '../bootstrapDatabase';
 import closeDatabaseOnError from '../middleware/closeDatabaseOnError';
@@ -64,6 +65,7 @@ passport.use(
 );
 
 // Routes
+api.use('/token', tokenRoutes);
 api.use('/users', userRoutes);
 api.all('*', async (req, res, next) => {
   // Create 404 error
