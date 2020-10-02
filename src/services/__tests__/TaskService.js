@@ -24,7 +24,8 @@ function setupService() {
   return { manager, service };
 }
 
-async function setupUser(repository) {
+// Test helpers
+async function createTestUser(userRepository) {
   // Generate random name for user
   const firstName = name.firstName();
   const lastName = name.lastName();
@@ -39,26 +40,91 @@ async function setupUser(repository) {
   };
 
   // Persist user to database
-  return repository.save(user);
+  return userRepository.save(user);
 }
 
-async function tearDownUser(repository, user) {
-  await repository.remove(user);
+async function createTestTask(taskRepository, user) {
+  // Define test task
+  const task = {
+    name: random.words(3),
+    description: null,
+    daysToRepeat: 0b1111111,
+    startDate: date.soon(64),
+    creator: user,
+    completedDays: [],
+  };
+
+  // Persist task to database
+  return taskRepository.save(task);
 }
 
 // Test Suite
 describe('Task service', () => {
+  describe('.findAllForUser method', () => {
+    it("should retrieve all the tasks for a given user, and nobody else's", async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task and user repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+
+      // Create two test users
+      const user1 = await createTestUser(userRepository);
+      const user2 = await createTestUser(userRepository);
+
+      // Create two tasks for each
+      const user1Task1 = await createTestTask(taskRepository, user1);
+      const user1Task2 = await createTestTask(taskRepository, user1);
+
+      const user2Task1 = await createTestTask(taskRepository, user2);
+      const user2Task2 = await createTestTask(taskRepository, user2);
+
+      try {
+        // Retrieve all the tasks for each user
+        const user1RetrievedTasks = await service.findAllForUser(user1.id);
+        const user2RetrievedTasks = await service.findAllForUser(user2.id);
+
+        // Expect each to have returned 2 results
+        expect(user1RetrievedTasks).toHaveLength(2);
+        expect(user2RetrievedTasks).toHaveLength(2);
+
+        // Expect each result to correspond with the ID of their respective task and creator
+        expect(user1RetrievedTasks[0]).toHaveProperty('id', user1Task1.id);
+        expect(user1RetrievedTasks[0].creator).toHaveProperty('id', user1.id);
+        expect(user1RetrievedTasks[1]).toHaveProperty('id', user1Task2.id);
+        expect(user1RetrievedTasks[1].creator).toHaveProperty('id', user1.id);
+
+        expect(user2RetrievedTasks[0]).toHaveProperty('id', user2Task1.id);
+        expect(user2RetrievedTasks[0].creator).toHaveProperty('id', user2.id);
+        expect(user2RetrievedTasks[1]).toHaveProperty('id', user2Task2.id);
+        expect(user2RetrievedTasks[1].creator).toHaveProperty('id', user2.id);
+      } finally {
+        // Remove all tasks
+        await taskRepository.remove([
+          user1Task1,
+          user1Task2,
+          user2Task1,
+          user2Task2,
+        ]);
+
+        // Remove both users
+        await userRepository.remove([user1, user2]);
+      }
+    });
+  });
+
   describe('.findById method', () => {
     it('should retrieve a task by its id if one can be found', async () => {
       // Setup service
       const { manager, service } = setupService();
 
-      // Get user repository
+      // Get task and user repositories
       const taskRepository = manager.getRepository(TaskSchema);
       const userRepository = manager.getRepository(UserSchema);
 
       // Create test user
-      const user = await setupUser(userRepository);
+      const user = await createTestUser(userRepository);
 
       // Define test task
       const task = {
@@ -89,11 +155,9 @@ describe('Task service', () => {
         expect(retrievedTask.creator).toBeDefined();
         expect(retrievedTask.creator).toHaveProperty('id', task.creator.id);
       } finally {
-        // Remove test task from database
+        // Remove test task and user
         await taskRepository.remove(persistedTask);
-
-        // Remove test user
-        await tearDownUser(userRepository, user);
+        await userRepository.remove(user);
       }
     });
 

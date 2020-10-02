@@ -15,15 +15,26 @@ class TaskService {
     this.#repository = connection.getRepository(TaskSchema);
   }
 
-  // async findAllForUser(userId) {}
+  async findAllForUser(userId) {
+    // Create query for task
+    const query = this.#repository
+      .createQueryBuilder('task')
+      .leftJoin('task.creator', 'creator')
+      .leftJoinAndSelect('task.completedDays', 'day')
+      .addSelect('creator.id')
+      .where('creator.id = :userId', { userId });
+
+    // Execute query and get results
+    return query.getMany();
+  }
 
   async findById(id) {
     // Create query for task
     const query = this.#repository
       .createQueryBuilder('task')
-      .leftJoin('task.creator', 'user')
+      .leftJoin('task.creator', 'creator')
       .leftJoinAndSelect('task.completedDays', 'day')
-      .addSelect('user.id')
+      .addSelect('creator.id')
       .where('task.id = :id', { id });
 
     // Execute query and get result
