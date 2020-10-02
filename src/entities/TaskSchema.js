@@ -21,6 +21,10 @@ const TaskSchema = new EntitySchema({
       nullable: false,
       default: () => 'CURRENT_DATE',
     },
+    reminderTime: {
+      type: 'time with time zone',
+      nullable: true,
+    },
     daysToRepeat: {
       type: 'smallint',
       nullable: false,
