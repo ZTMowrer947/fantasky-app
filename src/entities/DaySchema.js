@@ -9,8 +9,9 @@ const DaySchema = new EntitySchema({
   columns: {
     ...BaseSchemaFragment,
     date: {
-      type: Date,
+      type: 'date',
       nullable: false,
+      unique: true,
     },
   },
   relations: {

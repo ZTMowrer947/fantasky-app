@@ -27,7 +27,7 @@ const UserSchema = new EntitySchema({
       select: false,
     },
     dob: {
-      type: Date,
+      type: 'date',
       nullable: false,
     },
   },

@@ -17,9 +17,9 @@ const TaskSchema = new EntitySchema({
       nullable: true,
     },
     startDate: {
-      type: Date,
+      type: 'date',
       nullable: false,
-      default: () => 'NOW()',
+      default: () => 'CURRENT_DATE',
     },
     daysToRepeat: {
       type: 'smallint',
