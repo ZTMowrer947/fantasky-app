@@ -30,13 +30,18 @@ async function createTestUser(userRepository) {
   const firstName = name.firstName();
   const lastName = name.lastName();
 
+  // Generate random dob
+  const dob = date.past(35, new Date('06/01/2005'));
+
+  const dobString = dob.toISOString().slice(0, dob.toISOString().indexOf('T'));
+
   // Define user data
   const user = {
     firstName,
     lastName,
     emailAddress: internet.email(firstName, lastName),
     password: await argon2.hash(internet.password(24)),
-    dob: date.past(50),
+    dob: dobString,
   };
 
   // Persist user to database
@@ -44,12 +49,19 @@ async function createTestUser(userRepository) {
 }
 
 async function createTestTask(taskRepository, user) {
+  // Define start date and convert to string
+  const startDate = date.soon(64);
+
+  const dateString = startDate
+    .toISOString()
+    .slice(0, startDate.toISOString().indexOf('T'));
+
   // Define test task
   const task = {
     name: random.words(3),
     description: null,
     daysToRepeat: 0b1111111,
-    startDate: date.soon(64),
+    startDate: dateString,
     creator: user,
     completedDays: [],
   };
@@ -127,14 +139,7 @@ describe('Task service', () => {
       const user = await createTestUser(userRepository);
 
       // Define test task
-      const task = {
-        name: random.words(3),
-        description: null,
-        daysToRepeat: 0b1111111,
-        startDate: date.soon(64),
-        creator: user,
-        completedDays: [],
-      };
+      const task = await createTestTask(taskRepository, user);
 
       // Persist task to database
       const persistedTask = await taskRepository.save(task);
