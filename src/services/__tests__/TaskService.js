@@ -1,5 +1,6 @@
 // Imports
 import argon2 from 'argon2';
+import dateFormat from 'dateformat';
 import { date, internet, name, random } from 'faker';
 import { getConnection } from 'typeorm';
 
@@ -33,15 +34,13 @@ async function createTestUser(userRepository) {
   // Generate random dob
   const dob = date.past(35, new Date('06/01/2005'));
 
-  const dobString = dob.toISOString().slice(0, dob.toISOString().indexOf('T'));
-
   // Define user data
   const user = {
     firstName,
     lastName,
     emailAddress: internet.email(firstName, lastName),
     password: await argon2.hash(internet.password(24)),
-    dob: dobString,
+    dob: dateFormat(dob, 'isoDate'),
   };
 
   // Persist user to database
@@ -52,16 +51,12 @@ async function createTestTask(taskRepository, user) {
   // Define start date and convert to string
   const startDate = date.soon(64);
 
-  const dateString = startDate
-    .toISOString()
-    .slice(0, startDate.toISOString().indexOf('T'));
-
   // Define test task
   const task = {
     name: random.words(3),
     description: null,
     daysToRepeat: 0b1111111,
-    startDate: dateString,
+    startDate: dateFormat(startDate, 'isoDate'),
     creator: user,
     completedDays: [],
   };
