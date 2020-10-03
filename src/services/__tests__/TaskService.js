@@ -138,4 +138,37 @@ describe('Task service', () => {
       await expect(service.findById(id)).resolves.toBeUndefined();
     });
   });
+
+  describe('.delete method', () => {
+    it('should irrecoverably delete a task', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task and user repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+
+      // Create test user
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
+
+      // Create test task belonging to user
+      const taskData = generateFakeTask(user);
+      const task = await taskRepository.save(taskData);
+
+      try {
+        // Extract id from task
+        const { id } = task;
+
+        // Attempt to delete task through service
+        await service.delete(task);
+
+        // Expect attempts to recover deleted task to fail
+        await expect(taskRepository.findOneOrFail(id)).rejects.toThrow();
+      } finally {
+        // Remove test task and user
+        await userRepository.remove(user);
+      }
+    });
+  });
 });
