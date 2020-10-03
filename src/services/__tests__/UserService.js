@@ -3,6 +3,7 @@ import argon2 from 'argon2';
 import { getConnection } from 'typeorm';
 
 import UserService from '../UserService';
+import { generateFakeUser } from '../../__testutils__/users';
 import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
 import UserSchema from '../../entities/UserSchema';
 
@@ -46,8 +47,8 @@ describe('User service', () => {
       // Get user repository
       const repository = manager.getRepository(UserSchema);
 
-      // Define test user
-      const user = {
+      // Create test user
+      const userData = {
         firstName: 'John',
         lastName: 'Doe',
         emailAddress: 'john@example.tld',
@@ -56,7 +57,7 @@ describe('User service', () => {
       };
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const persistedUser = await repository.save(userData);
       try {
         // Define incorrect password
         const password = 'wrongpassword';
@@ -80,7 +81,7 @@ describe('User service', () => {
 
       // Define password and test user
       const password = 'johnpassword';
-      const user = {
+      const userData = {
         firstName: 'John',
         lastName: 'Doe',
         emailAddress: 'john@example.tld',
@@ -89,7 +90,7 @@ describe('User service', () => {
       };
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const persistedUser = await repository.save(userData);
 
       try {
         // Expect credential verification to succeed
@@ -112,16 +113,10 @@ describe('User service', () => {
       const repository = manager.getRepository(UserSchema);
 
       // Define test user
-      const user = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: await argon2.hash('johnpassword'),
-        dob: '1970-01-01',
-      };
+      const userData = await generateFakeUser();
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const persistedUser = await repository.save(userData);
 
       try {
         // Retrieve user from service
@@ -182,6 +177,7 @@ describe('User service', () => {
 
       // Use service to create new user
       await service.create(userDto);
+
       // Attempt to retrieve new user by email address, also selecting the password field
       const createdUser = await repository
         .createQueryBuilder('user')
@@ -223,16 +219,10 @@ describe('User service', () => {
       const repository = manager.getRepository(UserSchema);
 
       // Define test user
-      const user = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: await argon2.hash('johnpassword'),
-        dob: '1970-01-01',
-      };
+      const userData = await generateFakeUser();
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const persistedUser = await repository.save(userData);
 
       try {
         // Define update data
@@ -245,7 +235,7 @@ describe('User service', () => {
         };
 
         // Update user using service
-        await service.update(user, updateData);
+        await service.update(persistedUser, updateData);
 
         // Retrieve updated user by ID
         const updatedUser = await repository.findOne(persistedUser.id);
@@ -274,16 +264,10 @@ describe('User service', () => {
       const repository = manager.getRepository(UserSchema);
 
       // Define test user
-      const user = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: await argon2.hash('johnpassword'),
-        dob: '1970-01-01',
-      };
+      const userData = await generateFakeUser();
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const persistedUser = await repository.save(userData);
 
       try {
         // Delete user through service
