@@ -1,10 +1,9 @@
 // Imports
-import argon2 from 'argon2';
-import dateFormat from 'dateformat';
-import { date, internet, name, random } from 'faker';
 import { getConnection } from 'typeorm';
 
 import TaskService from '../TaskService';
+import { generateFakeTask } from '../../__testutils__/tasks';
+import { generateFakeUser } from '../../__testutils__/users';
 import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
 import TaskSchema from '../../entities/TaskSchema';
 import UserSchema from '../../entities/UserSchema';
@@ -25,46 +24,6 @@ function setupService() {
   return { manager, service };
 }
 
-// Test helpers
-async function createTestUser(userRepository) {
-  // Generate random name for user
-  const firstName = name.firstName();
-  const lastName = name.lastName();
-
-  // Generate random dob
-  const dob = date.past(35, new Date('06/01/2005'));
-
-  // Define user data
-  const user = {
-    firstName,
-    lastName,
-    emailAddress: internet.email(firstName, lastName),
-    password: await argon2.hash(internet.password(24)),
-    dob: dateFormat(dob, 'isoDate'),
-  };
-
-  // Persist user to database
-  return userRepository.save(user);
-}
-
-async function createTestTask(taskRepository, user) {
-  // Define start date and convert to string
-  const startDate = date.soon(64);
-
-  // Define test task
-  const task = {
-    name: random.words(3),
-    description: null,
-    daysToRepeat: 0b1111111,
-    startDate: dateFormat(startDate, 'isoDate'),
-    creator: user,
-    completedDays: [],
-  };
-
-  // Persist task to database
-  return taskRepository.save(task);
-}
-
 // Test Suite
 describe('Task service', () => {
   describe('.findAllForUser method', () => {
@@ -76,16 +35,29 @@ describe('Task service', () => {
       const taskRepository = manager.getRepository(TaskSchema);
       const userRepository = manager.getRepository(UserSchema);
 
-      // Create two test users
-      const user1 = await createTestUser(userRepository);
-      const user2 = await createTestUser(userRepository);
+      // Define data for two test users
+      const user1Data = await generateFakeUser();
+      const user2Data = await generateFakeUser();
 
-      // Create two tasks for each
-      const user1Task1 = await createTestTask(taskRepository, user1);
-      const user1Task2 = await createTestTask(taskRepository, user1);
+      // Persist the two users
+      const [user1, user2] = await userRepository.save([user1Data, user2Data]);
 
-      const user2Task1 = await createTestTask(taskRepository, user2);
-      const user2Task2 = await createTestTask(taskRepository, user2);
+      // Define two tasks for each
+      const task1AData = generateFakeTask(user1);
+      const task1BData = generateFakeTask(user1);
+
+      const task2AData = generateFakeTask(user2);
+      const task2BData = generateFakeTask(user2);
+
+      // Persist each of the tasks
+      const [task1A, task1B] = await taskRepository.save([
+        task1AData,
+        task1BData,
+      ]);
+      const [task2A, task2B] = await taskRepository.save([
+        task2AData,
+        task2BData,
+      ]);
 
       try {
         // Retrieve all the tasks for each user
@@ -97,23 +69,18 @@ describe('Task service', () => {
         expect(user2RetrievedTasks).toHaveLength(2);
 
         // Expect each result to correspond with the ID of their respective task and creator
-        expect(user1RetrievedTasks[0]).toHaveProperty('id', user1Task1.id);
+        expect(user1RetrievedTasks[0]).toHaveProperty('id', task1A.id);
         expect(user1RetrievedTasks[0].creator).toHaveProperty('id', user1.id);
-        expect(user1RetrievedTasks[1]).toHaveProperty('id', user1Task2.id);
+        expect(user1RetrievedTasks[1]).toHaveProperty('id', task1B.id);
         expect(user1RetrievedTasks[1].creator).toHaveProperty('id', user1.id);
 
-        expect(user2RetrievedTasks[0]).toHaveProperty('id', user2Task1.id);
+        expect(user2RetrievedTasks[0]).toHaveProperty('id', task2A.id);
         expect(user2RetrievedTasks[0].creator).toHaveProperty('id', user2.id);
-        expect(user2RetrievedTasks[1]).toHaveProperty('id', user2Task2.id);
+        expect(user2RetrievedTasks[1]).toHaveProperty('id', task2B.id);
         expect(user2RetrievedTasks[1].creator).toHaveProperty('id', user2.id);
       } finally {
         // Remove all tasks
-        await taskRepository.remove([
-          user1Task1,
-          user1Task2,
-          user2Task1,
-          user2Task2,
-        ]);
+        await taskRepository.remove([task1A, task1B, task2A, task2B]);
 
         // Remove both users
         await userRepository.remove([user1, user2]);
@@ -131,23 +98,22 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(UserSchema);
 
       // Create test user
-      const user = await createTestUser(userRepository);
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
 
-      // Define test task
-      const task = await createTestTask(taskRepository, user);
-
-      // Persist task to database
-      const persistedTask = await taskRepository.save(task);
+      // Create test task belonging to user
+      const taskData = generateFakeTask(user);
+      const task = await taskRepository.save(taskData);
 
       try {
         // Attempt to retrieve task through service
-        const retrievedTask = await service.findById(persistedTask.id);
+        const retrievedTask = await service.findById(task.id);
 
         // Expect task to be defined
         expect(retrievedTask).toBeDefined();
 
         // Expect task data to match input data and have a valid task and creator id
-        expect(retrievedTask).toHaveProperty('id', persistedTask.id);
+        expect(retrievedTask).toHaveProperty('id', task.id);
         expect(retrievedTask).toHaveProperty('name', task.name);
         expect(retrievedTask).toHaveProperty('description', task.description);
         expect(retrievedTask).toHaveProperty('daysToRepeat', task.daysToRepeat);
@@ -156,7 +122,7 @@ describe('Task service', () => {
         expect(retrievedTask.creator).toHaveProperty('id', task.creator.id);
       } finally {
         // Remove test task and user
-        await taskRepository.remove(persistedTask);
+        await taskRepository.remove(task);
         await userRepository.remove(user);
       }
     });
