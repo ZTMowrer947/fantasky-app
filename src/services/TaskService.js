@@ -41,13 +41,40 @@ class TaskService {
     return query.getOne();
   }
 
-  // async create(taskData) {}
+  async create(user, taskDto) {
+    // Convert repeating days to database format
+    const daysToRepeat = [
+      taskDto.sun,
+      taskDto.mon,
+      taskDto.tue,
+      taskDto.wed,
+      taskDto.thu,
+      taskDto.fri,
+      taskDto.sat,
+    ].reduce((accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index, 0);
+
+    // Define new task
+    const task = {
+      name: taskDto.name,
+      description: taskDto.description,
+      startDate: taskDto.startDate,
+      reminderTime: taskDto.reminderTime,
+      daysToRepeat,
+      creator: user,
+    };
+
+    // Persist task to database
+    await this.#repository.save(task);
+  }
 
   // async markForDay(task, day) {}
 
   // async update(task, taskData) {}
 
-  // async delete(task) {}
+  async delete(task) {
+    // Delete task
+    await this.#repository.remove(task);
+  }
 }
 
 // Exports
