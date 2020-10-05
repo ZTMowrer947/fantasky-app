@@ -54,7 +54,12 @@ class TaskService {
       activeDays.thu,
       activeDays.fri,
       activeDays.sat,
-    ].reduce((accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index, 0);
+    ]
+      .reverse()
+      .reduce(
+        (accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index,
+        0
+      );
 
     // Define new task
     const task = {
@@ -73,17 +78,6 @@ class TaskService {
     return id;
   }
 
-  // async toggleForDay(task, day) {
-  //   // Preload new task data
-  //   const modifiedTask = await this.#repository.preload({
-  //     id: task.id,
-  //     completedDays: [...task.completedDays, day],
-  //   });
-
-  //   // Persist updates to database
-  //   await this.#repository.save(modifiedTask);
-  // }
-
   async update(task, taskDto) {
     // Get active days data
     const { activeDays } = taskDto;
@@ -97,11 +91,17 @@ class TaskService {
       activeDays.thu,
       activeDays.fri,
       activeDays.sat,
-    ].reduce((accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index, 0);
+    ]
+      .reverse()
+      .reduce(
+        (accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index,
+        0
+      );
 
     // Preload task data
     const updatedTask = await this.#repository.preload({
       id: task.id,
+      name: taskDto.name,
       description: taskDto.description,
       startDate: taskDto.startDate,
       reminderTime: taskDto.reminderTime,
