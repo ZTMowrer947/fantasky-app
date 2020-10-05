@@ -73,9 +73,44 @@ class TaskService {
     return id;
   }
 
-  // async markForDay(task, day) {}
+  // async toggleForDay(task, day) {
+  //   // Preload new task data
+  //   const modifiedTask = await this.#repository.preload({
+  //     id: task.id,
+  //     completedDays: [...task.completedDays, day],
+  //   });
 
-  // async update(task, taskData) {}
+  //   // Persist updates to database
+  //   await this.#repository.save(modifiedTask);
+  // }
+
+  async update(task, taskDto) {
+    // Get active days data
+    const { activeDays } = taskDto;
+
+    // Convert repeating days to database format
+    const daysToRepeat = [
+      activeDays.sun,
+      activeDays.mon,
+      activeDays.tue,
+      activeDays.wed,
+      activeDays.thu,
+      activeDays.fri,
+      activeDays.sat,
+    ].reduce((accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index, 0);
+
+    // Preload task data
+    const updatedTask = await this.#repository.preload({
+      id: task.id,
+      description: taskDto.description,
+      startDate: taskDto.startDate,
+      reminderTime: taskDto.reminderTime,
+      daysToRepeat,
+    });
+
+    // Persist updated task to database
+    await this.#repository.save(updatedTask);
+  }
 
   async delete(task) {
     // Delete task
