@@ -42,15 +42,18 @@ class TaskService {
   }
 
   async create(user, taskDto) {
+    // Get active days data
+    const { activeDays } = taskDto;
+
     // Convert repeating days to database format
     const daysToRepeat = [
-      taskDto.sun,
-      taskDto.mon,
-      taskDto.tue,
-      taskDto.wed,
-      taskDto.thu,
-      taskDto.fri,
-      taskDto.sat,
+      activeDays.sun,
+      activeDays.mon,
+      activeDays.tue,
+      activeDays.wed,
+      activeDays.thu,
+      activeDays.fri,
+      activeDays.sat,
     ].reduce((accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index, 0);
 
     // Define new task
@@ -64,7 +67,10 @@ class TaskService {
     };
 
     // Persist task to database
-    await this.#repository.save(task);
+    const { id } = await this.#repository.save(task);
+
+    // Return the id of the newly created task
+    return id;
   }
 
   // async markForDay(task, day) {}

@@ -139,6 +139,76 @@ describe('Task service', () => {
     });
   });
 
+  describe('.create method', () => {
+    it('should create a new task', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task and user repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+
+      // Create test user
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
+
+      try {
+        // Generate test task data
+        const { name, description, reminderTime, startDate } = generateFakeTask(
+          user
+        );
+
+        // Define task DTO from data
+        const taskDto = {
+          name,
+          description,
+          reminderTime,
+          startDate,
+          activeDays: {
+            sun: true,
+            mon: true,
+            tue: true,
+            wed: true,
+            thu: true,
+            fri: true,
+            sat: true,
+          },
+        };
+
+        // Define expected daysToRepeat value
+        const expectedDaysToRepeat = 0b1111111;
+
+        // Create task and get ID
+        const id = await service.create(user, taskDto);
+
+        // Attempt to retrieve task by ID
+        const retrievedTask = await taskRepository.findOne(id, {
+          relations: ['creator'],
+        });
+
+        // Expect task to be defined and to match DTO data
+        expect(retrievedTask).toBeDefined();
+        expect(retrievedTask).toHaveProperty('name', taskDto.name);
+        expect(retrievedTask).toHaveProperty(
+          'description',
+          taskDto.description
+        );
+        expect(retrievedTask).toHaveProperty(
+          'reminderTime',
+          taskDto.reminderTime
+        );
+        expect(retrievedTask).toHaveProperty('startDate', taskDto.startDate);
+        expect(retrievedTask).toHaveProperty(
+          'daysToRepeat',
+          expectedDaysToRepeat
+        );
+      } finally {
+        // Remove test user and associated tasks
+        await userRepository.remove(user);
+      }
+    });
+  });
+
   describe('.delete method', () => {
     it('should irrecoverably delete a task', async () => {
       // Setup service
@@ -166,7 +236,7 @@ describe('Task service', () => {
         // Expect attempts to recover deleted task to fail
         await expect(taskRepository.findOneOrFail(id)).rejects.toThrow();
       } finally {
-        // Remove test task and user
+        // Remove test user
         await userRepository.remove(user);
       }
     });
