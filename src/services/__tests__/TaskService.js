@@ -209,6 +209,76 @@ describe('Task service', () => {
     });
   });
 
+  describe('.update method', () => {
+    it('should update existing task data', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task and user repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+
+      // Create test user
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
+
+      // Create test task belonging to user
+      const taskData = generateFakeTask(user);
+      const task = await taskRepository.save(taskData);
+
+      try {
+        // Generate new task data
+        // Generate test task data
+        const { name, description, reminderTime, startDate } = generateFakeTask(
+          user
+        );
+
+        // Define task DTO from data
+        const taskDto = {
+          name,
+          description,
+          reminderTime,
+          startDate,
+          activeDays: {
+            sun: false,
+            mon: true,
+            tue: true,
+            wed: true,
+            thu: true,
+            fri: false,
+            sat: false,
+          },
+        };
+
+        // Define expected daysToRepeat value
+        const expectedDaysToRepeat = 0b0111100;
+
+        // Update task using service
+        await service.update(task, taskDto);
+
+        // Retrieve updated task by id
+        const updatedTask = await taskRepository.findOne(task.id);
+
+        // Expect task to match update data
+        expect(updatedTask).toHaveProperty('name', taskDto.name);
+        expect(updatedTask).toHaveProperty('description', taskDto.description);
+        expect(updatedTask).toHaveProperty(
+          'reminderTime',
+          taskDto.reminderTime
+        );
+        expect(updatedTask).toHaveProperty('startDate', taskDto.startDate);
+        expect(updatedTask).toHaveProperty(
+          'daysToRepeat',
+          expectedDaysToRepeat
+        );
+      } finally {
+        // Remove test task and user
+        await taskRepository.remove(task);
+        await userRepository.remove(user);
+      }
+    });
+  });
+
   describe('.delete method', () => {
     it('should irrecoverably delete a task', async () => {
       // Setup service
