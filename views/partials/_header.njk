@@ -1,0 +1,51 @@
+{# Nav link macro #}
+{% macro navItem(name, href) %}
+
+  {# Declare variable for nav-item class list #}
+  {% set classlist = "nav-item" %}
+
+  {# Determine whether this link is active #}
+  {% set active = path == href %}
+
+  {# If it is, update classlist accordingly #}
+  {% if active %}
+    {% set classlist = "nav-item active" %}
+  {% endif %}
+
+  <li class="{{ classlist | escape }}">
+    <a href="{{ href | escape }}" class="nav-link">
+      {{ name | escape }}
+
+      {% if active %}
+        <span class="sr-only">(active)</span>
+      {% endif %}
+    </a>
+  </li>
+{% endmacro %}
+<header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <a href="index.html" class="navbar-brand">Fantasky</a>
+    <button
+      class="navbar-toggler"
+      data-toggle="collapse"
+      data-target="#navbar-collapse"
+      aria-controls="navbar-collapse"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        {{ navItem("Tasks", "/tasks") }}
+        {# <li class="nav-item">
+          <a href="overview.html" class="nav-link">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">Settings</a>
+        </li> #}
+      </ul>
+    </div>
+  </nav>
+</header>

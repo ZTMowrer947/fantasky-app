@@ -2,7 +2,8 @@
 <html lang="en">
     {% include "partials/_head.njk" %}
     <body>
-        <div class="container-fluid">
+        {% include "partials/_header.njk" %}
+        <div class="container-fluid mt-2">
             {% block content %}
             {% endblock %}
         </div>
