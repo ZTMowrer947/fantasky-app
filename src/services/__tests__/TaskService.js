@@ -2,9 +2,11 @@
 import { getConnection } from 'typeorm';
 
 import TaskService from '../TaskService';
+import { generateFakeDay } from '../../__testutils__/day';
 import { generateFakeTask } from '../../__testutils__/tasks';
 import { generateFakeUser } from '../../__testutils__/users';
 import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
+import DaySchema from '../../entities/DaySchema';
 import TaskSchema from '../../entities/TaskSchema';
 import UserSchema from '../../entities/UserSchema';
 
@@ -204,6 +206,93 @@ describe('Task service', () => {
         );
       } finally {
         // Remove test user and associated tasks
+        await userRepository.remove(user);
+      }
+    });
+  });
+
+  describe('.toggleForDay method', () => {
+    it('should mark the task as completed for a day if not already so', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task, user, and day repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+      const dayRepository = manager.getRepository(DaySchema);
+
+      // Create test user
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
+
+      // Create test task belonging to user
+      const taskData = generateFakeTask(user);
+      const task = await taskRepository.save(taskData);
+
+      // Create day to attach to task
+      const dayData = generateFakeDay();
+      const day = await dayRepository.save(dayData);
+
+      try {
+        // Mark task for day
+        await service.toggleForDay(task, day);
+
+        // Query relation for newly attached day
+        const attachedDay = await taskRepository
+          .createQueryBuilder()
+          .relation('completedDays')
+          .of(task)
+          .loadOne(day.id);
+
+        // Expect day to be found
+        expect(attachedDay).toBeDefined();
+      } finally {
+        // Remove test data
+        await dayRepository.remove(day);
+        await taskRepository.remove(task);
+        await userRepository.remove(user);
+      }
+    });
+
+    it('should unmark the task as completed if already so', async () => {
+      // Setup service
+      const { manager, service } = setupService();
+
+      // Get task, user, and day repositories
+      const taskRepository = manager.getRepository(TaskSchema);
+      const userRepository = manager.getRepository(UserSchema);
+      const dayRepository = manager.getRepository(DaySchema);
+
+      // Create test user
+      const userData = await generateFakeUser();
+      const user = await userRepository.save(userData);
+
+      // Create day to attach to task
+      const dayData = generateFakeDay();
+      const day = await dayRepository.save(dayData);
+
+      // Create test task belonging to user and having day attached
+      const taskData = generateFakeTask(user);
+      taskData.completedDays.push(day);
+      const task = await taskRepository.save(taskData);
+
+      try {
+        // Unmark task for day
+        await service.toggleForDay(task, day);
+
+        // Query relation for newly attached day
+        const attachedDay = await taskRepository
+          .createQueryBuilder()
+          .relation('completedDays')
+          .of(task)
+          .loadOne(day.id);
+
+        // Expect day to not be found
+        expect(attachedDay).toBeUndefined();
+      } finally {
+        // Remove test data
+        await dayRepository.remove(day);
+        await taskRepository.remove(task);
         await userRepository.remove(user);
       }
     });

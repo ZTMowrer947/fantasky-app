@@ -78,6 +78,32 @@ class TaskService {
     return id;
   }
 
+  async toggleForDay(task, day) {
+    // Attempt to find day in relation data for task
+    const matchingDay = await this.#repository
+      .createQueryBuilder()
+      .relation('completedDays')
+      .of(task)
+      .loadOne(day.id);
+
+    // If day is present,
+    if (matchingDay) {
+      // Remove day from relation
+      await this.#repository
+        .createQueryBuilder()
+        .relation('completedDays')
+        .of(task)
+        .remove(day);
+    } else {
+      // Otherwise, add day to relation
+      await this.#repository
+        .createQueryBuilder()
+        .relation('completedDays')
+        .of(task)
+        .add(day);
+    }
+  }
+
   async update(task, taskDto) {
     // Get active days data
     const { activeDays } = taskDto;
