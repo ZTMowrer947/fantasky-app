@@ -2,6 +2,83 @@
 
 {% extends "_layout.njk" %}
 
+{% block styles %}
+  {{ super() }}
+
+  <style>
+      .task-module {
+        border-radius: 8px;
+        min-height: 107px;
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+
+      .task-module:hover {
+        background: firebrick;
+      }
+
+      .task-module,
+      .task-module:hover {
+        text-decoration: none;
+      }
+
+      .task-module.task-add-module:hover {
+        background: gray;
+      }
+
+      .task-link {
+        display: block;
+        cursor: pointer;
+        border: 0;
+      }
+
+      .task-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--light);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .task-module:hover .task-title {
+        color: gray;
+      }
+
+      .task-timing,
+      .task-title,
+      .task-streak {
+        color: var(--light);
+      }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <h1>Hello, World!</h1>
+  <div class="row w-100">
+    <div class="col-12 col-lg-6 col-xl-4">
+      <a
+        class="task-module task-link bg-danger w-100"
+        href="task-detail.html"
+      >
+        <h3 class="task-title">
+          Exercise for 45 minutes
+        </h3>
+
+        <p class="task-timing">Every weekday at 10:00am</p>
+
+        <p class="task-streak">Streak ongoing since 09/15/2020 (11 days)</p>
+      </a>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-4">
+      <a
+        class="task-module task-add-module task-link bg-light w-100"
+        href="new-task.html"
+      >
+        <br />
+        <h3 class="text-center text-danger">+ New Task</h3>
+        <br />
+        <br />
+      </a>
+    </div>
+  </div>
 {% endblock %}
