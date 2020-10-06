@@ -9,6 +9,7 @@ import path from 'path';
 import api from './api';
 import bootstrapDatabase from './bootstrapDatabase';
 import closeDatabaseOnError from './middleware/closeDatabaseOnError';
+import frontendRoutes from './routes';
 import { sessionSecret } from './secrets';
 import UserService from './services/UserService';
 
@@ -127,6 +128,9 @@ passport.deserializeUser(async (emailAddress, done) => {
     return done(error);
   }
 });
+
+// Frontend routes
+app.use(frontendRoutes);
 
 // Error handlers
 app.use(closeDatabaseOnError);
