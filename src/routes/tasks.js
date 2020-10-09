@@ -10,7 +10,7 @@ taskRoutes
   .route('/') // /tasks
   .get(ensureLoggedIn('/login'), (req, res) => {
     // TODO: Load tasks of logged in user
-    res.render('index');
+    res.render('tasks/index');
   });
 
 // Exports
