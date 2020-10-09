@@ -23,5 +23,9 @@ authRoutes
     })
   );
 
+authRoutes.route('/register').get((req, res) => {
+  res.render('auth/register');
+});
+
 // Exports
 export default authRoutes;
