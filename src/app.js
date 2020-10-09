@@ -9,6 +9,7 @@ import path from 'path';
 
 import api from './api';
 import bootstrapDatabase from './bootstrapDatabase';
+import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import closeDatabaseOnError from './middleware/closeDatabaseOnError';
 import frontendRoutes from './routes';
 import { sessionSecret } from './secrets';
@@ -44,6 +45,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(attachLoginStatusToView);
 
 // Passport strategy
 passport.use(

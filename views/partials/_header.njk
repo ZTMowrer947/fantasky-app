@@ -39,14 +39,15 @@
     <div class="collapse navbar-collapse" id="navbar-collapse">
       <ul class="navbar-nav mr-auto">
         {{ navItem("Tasks", "/tasks") }}
-        {{ navItem("Log In", "/login", false) }}
-        {{ navItem("Register", "/register", false) }}
-        {# <li class="nav-item">
-          <a href="overview.html" class="nav-link">Overview</a>
-        </li>
-        <li class="nav-item">
-          <a href="settings.html" class="nav-link">Settings</a>
-        </li> #}
+        {% if userName %}
+          <div class="nav-item m-2 text-center text-white">
+            Welcome {{ userName }}!
+          </div>
+          {{ navItem("Log Out", "/logout")}}
+        {% else %}
+          {{ navItem("Log In", "/login", false) }}
+          {{ navItem("Register", "/register", false) }}
+        {% endif %}
       </ul>
     </div>
   </nav>
