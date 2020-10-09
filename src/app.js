@@ -1,4 +1,5 @@
 // Imports
+import flash from 'connect-flash';
 import express from 'express';
 import session from 'express-session';
 import nunjucks from 'nunjucks';
@@ -36,6 +37,7 @@ app.set('view engine', 'njk');
 app.use('/public', express.static(publicDir));
 app.use('/api', api);
 
+app.use(flash());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({ secret: sessionSecret, resave: false, saveUninitialized: false })
