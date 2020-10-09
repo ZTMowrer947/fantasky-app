@@ -26,7 +26,7 @@ authRoutes
     passport.authenticate('local', {
       failureRedirect: '/login',
       failureFlash: 'Incorrect email/password combination.',
-      successRedirect: '/tasks',
+      successReturnToOrRedirect: '/tasks',
     })
   );
 
@@ -91,6 +91,14 @@ authRoutes
       });
     })
   );
+
+authRoutes.get('/logout', (req, res) => {
+  // Log out user
+  req.logout();
+
+  // Redirect to login page
+  res.redirect('/login');
+});
 
 // Exports
 export default authRoutes;
