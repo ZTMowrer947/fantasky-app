@@ -1,0 +1,27 @@
+{% macro label(for, text) %}
+  <label for="{{ for }}">{{ text | e }}</label>
+{% endmacro %}
+
+{% macro input(name, value, type, valid) %}
+  {% if valid %}
+    {% set validityClass = '' %}
+  {% else %}
+    {% set validityClass = ' is-invalid' %}
+  {% endif %}
+
+  {% set classes = ['form-control', validityClass] %}
+
+  <input type="{{ type }}" name="{{ name }}" id="{{ name }}" value="{{ value | e }}" class="{{ classes | join }}" />
+{% endmacro %}
+
+{% macro group(name, labelText, value, error, inputType) %}
+  <div class="form-group">
+    {{ label(id, labelText) }}
+    {{ input(name, value, inputType, valid = (not error)) }}
+    {% if error %}
+      <div class="invalid-feedback">
+        {{ error | e }}
+      </div>
+    {% endif %}
+  </div>
+{% endmacro %}
