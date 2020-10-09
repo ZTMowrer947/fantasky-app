@@ -1,22 +1,42 @@
-{% macro label(for, text) %}
-  <label for="{{ for }}">{{ text | e }}</label>
+{% macro label(for, text, forCheckbox) %}
+  {% if forCheckbox %}
+    {% set class = 'form-check-label' %}
+  {% endif %}
+
+  <label for="{{ for }}" class="{{ class }}">{{ text | e }}</label>
 {% endmacro %}
 
 {% macro input(name, value, type, valid) %}
+  {% if type == 'checkbox' %}
+    {% set formControlClass = 'form-check-input' %}
+  {% else %}
+    {% set formControlClass = 'form-control' %}
+  {% endif %}
+
   {% if valid %}
     {% set validityClass = '' %}
   {% else %}
     {% set validityClass = ' is-invalid' %}
   {% endif %}
 
-  {% set classes = ['form-control', validityClass] %}
+  {% set classes = [formControlClass, validityClass] %}
 
-  <input type="{{ type }}" name="{{ name }}" id="{{ name }}" value="{{ value | e }}" class="{{ classes | join }}" />
+  {% if type == 'textarea' %}
+    <textarea name="{{ name }}" id="{{ name }}" value="{{ value | e }}" class="{{ classes | join }}"></textarea>
+  {% elseif type == 'checkbox' %}
+    {% if value == true %}
+      <input type="{{ type }}" name="{{ name }}" id="{{ name }}" value="true" checked class="{{ classes | join }}" />
+    {% else %}
+      <input type="{{ type }}" name="{{ name }}" id="{{ name }}" value="true" class="{{ classes | join }}" />
+    {% endif %}
+  {% else %}
+    <input type="{{ type }}" name="{{ name }}" id="{{ name }}" value="{{ value | e }}" class="{{ classes | join }}" />
+  {% endif %}
 {% endmacro %}
 
 {% macro group(name, labelText, value, error, inputType) %}
   <div class="form-group">
-    {{ label(id, labelText) }}
+    {{ label(id, labelText, forCheckbox = (inputType == 'checkbox')) }}
     {{ input(name, value, inputType, valid = (not error)) }}
     {% if error %}
       <div class="invalid-feedback">

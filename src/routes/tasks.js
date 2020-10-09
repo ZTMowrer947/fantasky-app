@@ -32,5 +32,10 @@ taskRoutes
     })
   );
 
+taskRoutes.route('/new').get(ensureLoggedIn('/login'), (req, res) => {
+  // Render task creation form
+  res.render('tasks/new');
+});
+
 // Exports
 export default taskRoutes;
