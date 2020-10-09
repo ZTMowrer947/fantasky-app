@@ -13,7 +13,7 @@ authRoutes
     [res.locals.failureMessage] = req.flash('error');
 
     // Render login form
-    res.render('login');
+    res.render('auth/login');
   })
   .post(
     passport.authenticate('local', {
