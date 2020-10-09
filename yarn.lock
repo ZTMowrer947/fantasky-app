@@ -1194,6 +1194,13 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
+"@types/connect-ensure-login@^0.1.5":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@types/connect-ensure-login/-/connect-ensure-login-0.1.5.tgz#564c3df326e706711d046cda801a163648bbd7db"
+  integrity sha512-GhR/KbGtSXd1mFXV/1brx1wKRJe/hwZnrvoHMWC2+TKo03uWwqZuAajBai8xUcghopK1220Nx019Vc/oJgYHRw==
+  dependencies:
+    "@types/express" "*"
+
 "@types/connect-flash@^0.0.35":
   version "0.0.35"
   resolved "https://registry.yarnpkg.com/@types/connect-flash/-/connect-flash-0.0.35.tgz#c1bc38750422dac44b6a656b9dac72da17560fb7"
@@ -2578,6 +2585,11 @@ confusing-browser-globals@^1.0.9:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/confusing-browser-globals/-/confusing-browser-globals-1.0.9.tgz#72bc13b483c0276801681871d4898516f8f54fdd"
   integrity sha512-KbS1Y0jMtyPgIxjO7ZzMAuUpAKMt1SzCL9fsrKsX6b0zJPTaT0SiSPmewwVZg9UAO83HVIlEhZF84LIjZ0lmAw==
+
+connect-ensure-login@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/connect-ensure-login/-/connect-ensure-login-0.1.1.tgz#174dcc51243b9eac23f8d98215aeb6694e2e8a12"
+  integrity sha1-F03MUSQ7nqwj+NmCFa62aU4uihI=
 
 connect-flash@^0.1.1:
   version "0.1.1"
