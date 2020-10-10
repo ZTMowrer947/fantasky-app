@@ -4,7 +4,7 @@
 /**
  * @implements {import("typeorm").MigrationInterface}
  */
-export default class RecreateTaskFk1601647047808 {
+export default class RecreateTaskFk1602299813972 {
   /**
    * @param {import("typeorm").QueryRunner} queryRunner
    */
