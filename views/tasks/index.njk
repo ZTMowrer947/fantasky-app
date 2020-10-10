@@ -56,20 +56,22 @@
 
 {% block content %}
   <div class="row w-100">
-    <div class="col-12 col-lg-6 col-xl-4">
+    {% for task in tasks %}
+      <div class="col-12 col-lg-6 col-xl-4">
       <a
         class="task-module task-link bg-danger w-100"
-        href="task-detail.html"
+        href="/tasks/{{ task.id }}"
       >
         <h3 class="task-title">
-          Exercise for 45 minutes
+          {{ task.name | e }}
         </h3>
 
-        <p class="task-timing">Every weekday at 10:00am</p>
+        <p class="task-timing">{{ task.activeDays }}</p>
 
-        <p class="task-streak">Streak ongoing since 09/15/2020 (11 days)</p>
+        <p class="task-streak">{{ task.streak }}</p>
       </a>
     </div>
+    {% endfor %}
     <div class="col-12 col-lg-6 col-xl-4">
       <a
         class="task-module task-add-module task-link bg-light w-100"
