@@ -216,13 +216,13 @@ taskRoutes
       const taskService = new TaskService(req.db);
 
       // Create task
-      await taskService.create(req.user, req.body);
+      const id = await taskService.create(req.user, req.body);
 
       // Close database connection
       await req.db.close();
 
-      // Redirect to task listing (TODO: redirect to task that was just created)
-      res.redirect('/tasks');
+      // Redirect to details of newly created task
+      res.redirect(`/tasks/${id}`);
     })
   );
 
@@ -443,6 +443,147 @@ taskRoutes
   );
 
 taskRoutes
+  .route('/:id/edit')
+  .all(param('id').toInt())
+  .get(
+    ensureLoggedIn('/login'),
+    database,
+    asyncHandler(async (req, res) => {
+      // Instantiate task service
+      const service = new TaskService(req.db);
+
+      // Retrieve task by id
+      const task = await service.findById(req.params.id);
+
+      // If task was not found or is not owned by the logged in user,
+      if (task?.creator?.id !== req.user.id) {
+        // Throw 404 error
+        const error = createError(
+          404,
+          'The requested task either does not exist or you do not have permission to access it.'
+        );
+
+        throw error;
+      }
+
+      // Close database connection
+      await req.db.close();
+
+      // Convert binary day representation into boolean values
+      const [activeDays] = Array.from({ length: 7 }).reduce(
+        ([daysActive, daysBinary]) => {
+          const dayIsActive = daysBinary % 2 !== 0;
+          const quotient = Math.trunc(daysBinary / 2);
+
+          return [[dayIsActive, ...daysActive], quotient];
+        },
+        [[], task.daysToRepeat]
+      );
+
+      const [sun, mon, tue, wed, thu, fri, sat] = activeDays;
+
+      // Define local data for view
+      res.locals.values = {
+        name: task.name,
+        description: task.description,
+        startDate: task.startDate,
+        sun,
+        mon,
+        tue,
+        wed,
+        thu,
+        fri,
+        sat,
+      };
+      res.locals.taskId = task.id;
+
+      // Render task modification form
+      res.render('tasks/edit');
+    })
+  )
+  .post(
+    ensureLoggedIn('/login'),
+    (req, res, next) => {
+      // Get active days
+      const { sun, mon, tue, wed, thu, fri, sat, ...baseTask } = req.body;
+
+      // Rearrange request body and sanitize active days
+      req.body = {
+        ...baseTask,
+        activeDays: {
+          sun: validator.toBoolean(sun ?? ''),
+          mon: validator.toBoolean(mon ?? ''),
+          tue: validator.toBoolean(tue ?? ''),
+          wed: validator.toBoolean(wed ?? ''),
+          thu: validator.toBoolean(thu ?? ''),
+          fri: validator.toBoolean(fri ?? ''),
+          sat: validator.toBoolean(sat ?? ''),
+        },
+      };
+
+      // Proceed with middleware chain
+      next();
+    },
+    checkSchema(taskValidationSchema),
+    (req, res, next) => {
+      // Get validation results
+      const errors = validationResult(req);
+
+      // If there are validation errors,
+      if (!errors.isEmpty()) {
+        // Attach errors to view locals
+        res.locals.errors = errors.mapped();
+
+        // Attach form values from previous submission
+        res.locals.values = {
+          name: validator.unescape(req.body.name ?? ''),
+          description: validator.unescape(req.body.description ?? ''),
+          startDate: req.body?.startDate
+            ? DateTime.fromJSDate(req.body.startDate, {
+                zone: 'utc',
+              }).toISODate()
+            : undefined,
+          ...req.body.activeDays,
+        };
+
+        // Re-render task modification form
+        res.render('tasks/edit');
+      } else {
+        // Otherwise, proceed to next handler
+        next();
+      }
+    },
+    database,
+    asyncHandler(async (req, res) => {
+      // Instantiate task service
+      const service = new TaskService(req.db);
+
+      // Retrieve task by id
+      const task = await service.findById(req.params.id);
+
+      // If task was not found or is not owned by the logged in user,
+      if (task?.creator?.id !== req.user.id) {
+        // Throw 404 error
+        const error = createError(
+          404,
+          'The requested task either does not exist or you do not have permission to access it.'
+        );
+
+        throw error;
+      }
+
+      // Update task
+      await service.update(task, req.body);
+
+      // Close database connection
+      await req.db.close();
+
+      // Redirect to details for task
+      res.redirect(`/tasks/${task.id}`);
+    })
+  );
+
+taskRoutes
   .route('/:id/delete')
   .all(param('id').toInt())
   .get(
@@ -460,7 +601,7 @@ taskRoutes
         // Throw 404 error
         const error = createError(
           404,
-          'The requested task either does not exist or you do not have permissiion to access it.'
+          'The requested task either does not exist or you do not have permission to access it.'
         );
 
         throw error;
