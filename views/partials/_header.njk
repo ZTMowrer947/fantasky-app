@@ -12,7 +12,7 @@
     {% set classlist = "nav-item active" %}
   {% endif %}
 
-  <li class="{{ classlist | escape }}">
+  <div class="{{ classlist | escape }}">
     <a href="{{ href | escape }}" class="nav-link">
       {{ name | escape }}
 
@@ -20,8 +20,9 @@
         <span class="sr-only">(active)</span>
       {% endif %}
     </a>
-  </li>
+  </div>
 {% endmacro %}
+
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
     <a href="/tasks" class="navbar-brand">Fantasky</a>
@@ -37,18 +38,20 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbar-collapse">
-      <ul class="navbar-nav mr-auto">
+      <div class="navbar-nav d-flex justify-content-start w-100">
         {{ navItem("Tasks", "/tasks") }}
         {% if userName %}
-          <div class="nav-item m-2 text-center text-white">
+          <div class="nav-item m-2 ml-auto text-center text-white">
             Welcome {{ userName }}!
           </div>
           {{ navItem("Log Out", "/logout")}}
         {% else %}
-          {{ navItem("Log In", "/login", false) }}
+          <div class="nav-item ml-auto">
+            <a href="/login" class="nav-link">Log In</a>
+          </div>
           {{ navItem("Register", "/register", false) }}
         {% endif %}
-      </ul>
+      </div>
     </div>
   </nav>
 </header>
