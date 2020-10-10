@@ -1,0 +1,29 @@
+{% set path = "/tasks/{{ task.id }}/delete" %}
+{% set title = "DELETING Task | Fantasky" %}
+
+{% extends "_layout.njk" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-8 col-md-6 col-lg-5">
+      <h1 class="display-4">WARNING!</h1>
+
+      <p>
+          This will <em>permanently</em> delete the
+          task "{{ task.name }}". Once it is deleted,
+          it <strong>CANNOT</strong> be recovered.
+      </p>
+
+      <p>Are you <strong>absolutely</strong> sure you would like to proceed with deleting this task?</p>
+
+      <form method="POST">
+        <div class="btn-group">
+          <button type="submit" class="btn btn-danger">Yes, delete anyway</button>
+          <a href="/tasks/{{ task.id }}" class="btn btn-outline-danger">No, go back</a>
+        </div>
+      </form>
+    </div>
+    <div class="col"></div>
+  </div>
+{% endblock %}

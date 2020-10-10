@@ -227,7 +227,7 @@ taskRoutes
   );
 
 taskRoutes
-  .route('/:id') // tasks/:id
+  .route('/:id') // /tasks/:id
   .all(param('id').toInt())
   .get(
     ensureLoggedIn('/login'),
@@ -439,6 +439,75 @@ taskRoutes
 
       // Re-render task details
       res.redirect(`/tasks/${task.id}`);
+    })
+  );
+
+taskRoutes
+  .route('/:id/delete')
+  .all(param('id').toInt())
+  .get(
+    ensureLoggedIn('/login'),
+    database,
+    asyncHandler(async (req, res) => {
+      // Instantiate task service
+      const service = new TaskService(req.db);
+
+      // Retrieve task by id
+      const task = await service.findById(req.params.id);
+
+      // If task was not found or is not owned by the logged in user,
+      if (task?.creator?.id !== req.user.id) {
+        // Throw 404 error
+        const error = createError(
+          404,
+          'The requested task either does not exist or you do not have permissiion to access it.'
+        );
+
+        throw error;
+      }
+
+      // Close database connection
+      await req.db.close();
+
+      // Attach needed task data for view
+      res.locals.task = {
+        id: task.id,
+        name: task.name,
+      };
+
+      // Render deletion confirmation
+      res.render('tasks/delete');
+    })
+  )
+  .post(
+    ensureLoggedIn('/login'),
+    database,
+    asyncHandler(async (req, res) => {
+      // Instantiate task service
+      const service = new TaskService(req.db);
+
+      // Retrieve task by id
+      const task = await service.findById(req.params.id);
+
+      // If task was not found or is not owned by the logged in user,
+      if (task?.creator?.id !== req.user.id) {
+        // Throw 404 error
+        const error = createError(
+          404,
+          'The requested task either does not exist or you do not have permissiion to access it.'
+        );
+
+        throw error;
+      }
+
+      // Delete task
+      await service.delete(task);
+
+      // Close database connection
+      await req.db.close();
+
+      // Redirect to task listing
+      res.redirect('/tasks');
     })
   );
 
