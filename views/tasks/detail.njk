@@ -1,0 +1,53 @@
+{% set path = "/tasks/{{ task.id }}" %}
+{% set title = "Task Details | Fantasky" %}
+
+{% extends "_layout.njk" %}
+
+{% block content %}
+  <a class="text-danger text-decoration-none" href="/tasks">
+    &lt; Return to Task Listing
+  </a>
+
+  <h1 class="mt-4">{{ task.name }}</h1>
+  <p>{{ task.activeDays }}</p>
+
+  <div class="row mt-3">
+    <div class="col-2"></div>
+    <div class="col">
+      <table class="table table-bordered">
+        <caption class="text-center">
+          {{ task.streak }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">S</th>
+            <th scope="col">M</th>
+            <th scope="col">T</th>
+            <th scope="col">W</th>
+            <th scope="col">T</th>
+            <th scope="col">F</th>
+            <th scope="col">S</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for week in activity %}
+            <tr>
+              {% for day in week %}
+              <td class="{{ 'bg-danger text-white' if day.marked }}">{{ day.date | e }}</td>
+            {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-2"></div>
+  </div>
+
+  <form class="form-inline" method="POST">
+    <div class="btn-group">
+      <button class="btn btn-outline-danger">Toggle for Today</button>
+      <a href="/tasks/{{ task.id }}/edit" class="btn btn-outline-danger">Edit Task</a>
+      <a href="/tasks/{{ task.id }}/delete" class="btn btn-danger">DELETE Task</a>
+    </div>
+  </form>
+{% endblock %}
