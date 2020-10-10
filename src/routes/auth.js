@@ -1,8 +1,8 @@
 // Imports
-import dateFormat from 'dateformat';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { checkSchema, validationResult } from 'express-validator';
+import { DateTime } from 'luxon';
 import passport from 'passport';
 
 import database from '../middleware/database';
@@ -61,7 +61,9 @@ authRoutes
         // Attach form values from previous submission, excluding password fields
         res.locals.values = {
           ...req.body,
-          dob: req.body?.dob ? dateFormat(req.body.dob, 'isoDate') : undefined,
+          dob: req.body?.dob
+            ? DateTime.fromJSDate(req.body.dob, { zone: 'utc' }).toISODate()
+            : undefined,
           password: '',
           confirmPassword: '',
         };

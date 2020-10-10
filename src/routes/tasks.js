@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
 import { ensureLoggedIn } from 'connect-ensure-login';
-import dateFormat from 'dateformat';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { checkSchema, validationResult } from 'express-validator';
+import { DateTime } from 'luxon';
 import validator from 'validator';
 
 import database from '../middleware/database';
@@ -39,7 +39,7 @@ taskRoutes
   .route('/new')
   .get(ensureLoggedIn('/login'), (req, res) => {
     res.locals.values = {
-      startDate: dateFormat(undefined, 'isoDate'),
+      startDate: DateTime.utc().toISODate(),
     };
 
     // Render task creation form
@@ -83,7 +83,9 @@ taskRoutes
           name: validator.unescape(req.body.name ?? ''),
           description: validator.unescape(req.body.description ?? ''),
           startDate: req.body?.startDate
-            ? dateFormat(req.body.startDate, 'isoDate', true)
+            ? DateTime.fromJSDate(req.body.startDate, {
+                zone: 'utc',
+              }).toISODate()
             : undefined,
           ...req.body.activeDays,
         };
