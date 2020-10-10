@@ -26,6 +26,17 @@ const taskValidationSchema = {
       },
     },
   },
+  startDate: {
+    in: ['body'],
+    trim: true,
+    notEmpty: {
+      errorMessage: 'Start date is required',
+    },
+    isDate: {
+      errorMessage: 'Start date must be a valid date',
+    },
+    toDate: true,
+  },
 };
 
 // Exports

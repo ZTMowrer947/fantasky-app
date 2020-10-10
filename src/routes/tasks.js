@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
 import { ensureLoggedIn } from 'connect-ensure-login';
+import dateFormat from 'dateformat';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { checkSchema, validationResult } from 'express-validator';
@@ -20,16 +21,14 @@ taskRoutes
     ensureLoggedIn('/login'),
     database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
+      // // Instantiate task service
+      // const service = new TaskService(req.db);
 
-      // Retrieve tasks for user
-      const tasks = await service.findAllForUser(req.user.id);
+      // // Retrieve tasks for user
+      // const tasks = await service.findAllForUser(req.user.id);
 
       // Close database connection
       await req.db.close();
-
-      console.log(tasks);
 
       // TODO: Process and attach tasks of logged in user
       res.render('tasks/index');
@@ -39,6 +38,10 @@ taskRoutes
 taskRoutes
   .route('/new')
   .get(ensureLoggedIn('/login'), (req, res) => {
+    res.locals.values = {
+      startDate: dateFormat(undefined, 'isoDate'),
+    };
+
     // Render task creation form
     res.render('tasks/new');
   })
@@ -66,7 +69,7 @@ taskRoutes
       next();
     },
     checkSchema(taskValidationSchema),
-    (req, res) => {
+    (req, res, next) => {
       // Get validation results
       const errors = validationResult(req);
 
@@ -79,16 +82,33 @@ taskRoutes
         res.locals.values = {
           name: validator.unescape(req.body.name ?? ''),
           description: validator.unescape(req.body.description ?? ''),
+          startDate: req.body?.startDate
+            ? dateFormat(req.body.startDate, 'isoDate', true)
+            : undefined,
           ...req.body.activeDays,
         };
 
         // Re-render task creation form
         res.render('tasks/new');
       } else {
-        // Otherwise, render form anyway since we still need to implement the task creation
-        res.render('tasks/new');
+        // Otherwise, proceed to next handler
+        next();
       }
-    }
+    },
+    database,
+    asyncHandler(async (req, res) => {
+      // Instantiate task service
+      const taskService = new TaskService(req.db);
+
+      // Create task
+      await taskService.create(req.user, req.body);
+
+      // Close database connection
+      await req.db.close();
+
+      // Redirect to task listing (TODO: redirect to task that was just created)
+      res.redirect('/tasks');
+    })
   );
 
 // Exports
