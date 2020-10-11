@@ -13,7 +13,6 @@ import path from 'path';
 // import api from './api';
 import bootstrapDatabase from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
-import closeDatabaseOnError from './middleware/closeDatabaseOnError';
 import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
 import { sessionSecret } from './secrets';
@@ -162,7 +161,6 @@ app.use((req, res, next) => {
 });
 
 // Error handlers
-app.use(closeDatabaseOnError);
 app.use(errorHandler);
 
 // Exports

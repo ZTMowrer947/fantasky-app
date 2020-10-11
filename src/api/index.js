@@ -9,7 +9,6 @@ import apiErrorHandler from './middleware/apiErrorHandler';
 import tokenRoutes from './routes/token';
 import userRoutes from './routes/users';
 import bootstrapDatabase from '../bootstrapDatabase';
-import closeDatabaseOnError from '../middleware/closeDatabaseOnError';
 import { jwtSecret } from '../secrets';
 import TokenService from '../services/TokenService';
 import UserService from '../services/UserService';
@@ -125,7 +124,6 @@ api.all('*', async (req, res, next) => {
 });
 
 // Error handlers
-api.use(closeDatabaseOnError);
 api.use(apiErrorHandler);
 
 // Exports
