@@ -16,13 +16,7 @@ const authRoutes = Router();
 authRoutes
   .route('/login')
   .get((req, res) => {
-    let [failureMessage] = req.flash('error');
-
-    // If returnTo is set on session, and there is not a flash message already set,
-    if (req.session?.returnTo && !failureMessage) {
-      // Set flash message instructing user to login to access previous page
-      failureMessage = 'You must be logged in to access that page.';
-    }
+    const [failureMessage] = req.flash('error');
 
     // If there is a failure message, set status to 401
     if (failureMessage) res.status(401);
