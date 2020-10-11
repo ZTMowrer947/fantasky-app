@@ -244,7 +244,7 @@ taskRoutes
         // Throw 404 error
         const error = createError(
           404,
-          'The requested task either does not exist or you do not have permissiion to access it.'
+          'The requested task either does not exist or you do not have permission to access it.'
         );
 
         throw error;
@@ -410,7 +410,7 @@ taskRoutes
         // Throw 404 error
         const error = createError(
           404,
-          'The requested task either does not exist or you do not have permissiion to access it.'
+          'The requested task either does not exist or you do not have permission to access it.'
         );
 
         throw error;
@@ -635,7 +635,7 @@ taskRoutes
         // Throw 404 error
         const error = createError(
           404,
-          'The requested task either does not exist or you do not have permissiion to access it.'
+          'The requested task either does not exist or you do not have permission to access it.'
         );
 
         throw error;
