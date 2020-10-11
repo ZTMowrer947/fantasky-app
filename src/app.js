@@ -8,7 +8,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
 
-import api from './api';
+// import api from './api';
 import bootstrapDatabase from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import closeDatabaseOnError from './middleware/closeDatabaseOnError';
@@ -38,7 +38,7 @@ app.set('view engine', 'njk');
 
 // Middleware
 app.use('/public', express.static(publicDir));
-app.use('/api', api);
+// app.use('/api', api);
 
 app.use(flash());
 app.use(express.urlencoded({ extended: true }));
