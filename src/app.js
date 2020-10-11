@@ -1,8 +1,10 @@
 // Imports
 import flash from 'connect-flash';
+import createRedisStore from 'connect-redis';
 import express from 'express';
 import session from 'express-session';
 import createError from 'http-errors';
+import Redis from 'ioredis';
 import nunjucks from 'nunjucks';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
@@ -16,6 +18,11 @@ import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
 import { sessionSecret } from './secrets';
 import UserService from './services/UserService';
+
+// Redis setup
+const redis = new Redis();
+const RedisStore = createRedisStore(session);
+const sessionStore = new RedisStore({ client: redis });
 
 // Express app setup
 const app = express();
@@ -46,10 +53,11 @@ app.use(
   session({
     cookie: {
       sameSite: true,
-      secure: !!process.env.NODE_ENV,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 86400000,
     },
     secret: sessionSecret,
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
   })
