@@ -188,6 +188,9 @@ taskRoutes
 
       // If there are validation errors,
       if (!errors.isEmpty()) {
+        // Set status to 400
+        res.status(400);
+
         // Attach errors to view locals
         res.locals.errors = errors.mapped();
 
@@ -531,6 +534,9 @@ taskRoutes
 
       // If there are validation errors,
       if (!errors.isEmpty()) {
+        // Set status to 400
+        res.status(400);
+
         // Attach errors to view locals
         res.locals.errors = errors.mapped();
 

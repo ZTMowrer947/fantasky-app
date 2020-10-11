@@ -24,6 +24,9 @@ authRoutes
       failureMessage = 'You must be logged in to access that page.';
     }
 
+    // If there is a failure message, set status to 401
+    if (failureMessage) res.status(401);
+
     // Get flash message and attach to view locals
     res.locals.failureMessage = failureMessage;
 
@@ -54,6 +57,9 @@ authRoutes
       if (!errors.isEmpty()) {
         // Close database connection
         await req.db.close();
+
+        // Set status to 400
+        res.status(400);
 
         // Attach errors to view locals
         res.locals.errors = errors.mapped();
