@@ -352,7 +352,7 @@ taskRoutes
       let nextSaturday = today;
 
       while (nextSaturday.weekday !== 6) {
-        nextSaturday = today.plus({ days: 1 });
+        nextSaturday = nextSaturday.plus({ days: 1 });
       }
 
       // Get the Sunday after the present/future Saturday, then back up three weeks
