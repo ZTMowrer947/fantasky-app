@@ -15,11 +15,11 @@ import { getDatabaseConnection } from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
-import { sessionSecret } from './secrets';
+import { redisOptions, sessionSecret } from './secrets';
 import UserService from './services/UserService';
 
 // Redis setup
-const redis = new Redis();
+const redis = new Redis(redisOptions);
 const RedisStore = createRedisStore(session);
 const sessionStore = new RedisStore({ client: redis });
 

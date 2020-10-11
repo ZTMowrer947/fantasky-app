@@ -12,3 +12,12 @@ export const cookieSecret = process.env.COOKIE_SECRET;
 
 // Secret for session data
 export const sessionSecret = process.env.SESSION_SECRET;
+
+// Redis client options
+/**
+ * @type {import("ioredis").RedisOptions}
+ */
+export const redisOptions = {
+  port: Number.parseInt(process.env.REDIS_PORT, 10) ?? 6379,
+  host: process.env.REDIS_HOST ?? 'localhost',
+};
