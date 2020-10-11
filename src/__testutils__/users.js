@@ -1,6 +1,5 @@
 // Imports
 import argon2 from 'argon2';
-import dateFormat from 'dateformat';
 import { date, internet, name } from 'faker';
 
 // Test helpers
@@ -10,7 +9,7 @@ async function generateFakeUser() {
   const lastName = name.lastName();
 
   // Generate random dob
-  const dob = date.past(35, new Date('06/01/2005'));
+  const dob = date.past(35, '2005-06-01');
 
   // Define user data
   const user = {
@@ -18,7 +17,7 @@ async function generateFakeUser() {
     lastName,
     emailAddress: internet.email(firstName, lastName),
     password: await argon2.hash(internet.password(24)),
-    dob: dateFormat(dob, 'isoDate'),
+    dob,
   };
 
   // Return generated user

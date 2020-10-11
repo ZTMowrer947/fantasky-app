@@ -1,5 +1,6 @@
 // Imports
 import argon2 from 'argon2';
+import { DateTime } from 'luxon';
 import os from 'os';
 
 import UserSchema from '../entities/UserSchema';
@@ -67,7 +68,7 @@ class UserService {
       lastName: userDto.lastName,
       emailAddress: userDto.emailAddress,
       password: passwordHash,
-      dob: userDto.dob,
+      dob: DateTime.fromJSDate(userDto.dob, { zone: 'utc' }).toSQLDate(),
     };
 
     // Persist user to database
@@ -90,7 +91,7 @@ class UserService {
       lastName: updateDto.lastName,
       emailAddress: updateDto.emailAddress,
       password: passwordHash,
-      dob: updateDto.dob,
+      dob: DateTime.fromJSDate(updateDto.dob, { zone: 'utc' }).toSQLDate(),
     });
 
     // Otherwise, persist updated user to database

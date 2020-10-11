@@ -1,4 +1,5 @@
 // Imports
+import { DateTime } from 'luxon';
 import { getConnection } from 'typeorm';
 
 import TaskService from '../TaskService';
@@ -177,8 +178,11 @@ describe('Task service', () => {
           },
         };
 
-        // Define expected daysToRepeat value
+        // Define expected daysToRepeat and startDate values
         const expectedDaysToRepeat = 0b1111111;
+        const expectedStartDate = DateTime.fromJSDate(taskDto.startDate, {
+          zone: 'utc',
+        }).toSQLDate();
 
         // Create task and get ID
         const id = await service.create(user, taskDto);
@@ -199,7 +203,7 @@ describe('Task service', () => {
           'reminderTime',
           taskDto.reminderTime
         );
-        expect(retrievedTask).toHaveProperty('startDate', taskDto.startDate);
+        expect(retrievedTask).toHaveProperty('startDate', expectedStartDate);
         expect(retrievedTask).toHaveProperty(
           'daysToRepeat',
           expectedDaysToRepeat
@@ -339,8 +343,11 @@ describe('Task service', () => {
           },
         };
 
-        // Define expected daysToRepeat value
+        // Define expected daysToRepeat and startDate values
         const expectedDaysToRepeat = 0b0111100;
+        const expectedStartDate = DateTime.fromJSDate(taskDto.startDate, {
+          zone: 'utc',
+        }).toSQLDate();
 
         // Update task using service
         await service.update(task, taskDto);
@@ -355,7 +362,7 @@ describe('Task service', () => {
           'reminderTime',
           taskDto.reminderTime
         );
-        expect(updatedTask).toHaveProperty('startDate', taskDto.startDate);
+        expect(updatedTask).toHaveProperty('startDate', expectedStartDate);
         expect(updatedTask).toHaveProperty(
           'daysToRepeat',
           expectedDaysToRepeat

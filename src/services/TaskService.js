@@ -1,4 +1,6 @@
 // Imports
+import { DateTime } from 'luxon';
+
 import TaskSchema from '../entities/TaskSchema';
 
 // Service
@@ -65,7 +67,9 @@ class TaskService {
     const task = {
       name: taskDto.name,
       description: taskDto.description,
-      startDate: taskDto.startDate,
+      startDate: DateTime.fromJSDate(taskDto.startDate, {
+        zone: 'utc',
+      }).toSQLDate(),
       reminderTime: taskDto.reminderTime,
       daysToRepeat,
       creator: user,
@@ -129,7 +133,9 @@ class TaskService {
       id: task.id,
       name: taskDto.name,
       description: taskDto.description,
-      startDate: taskDto.startDate,
+      startDate: DateTime.fromJSDate(taskDto.startDate, {
+        zone: 'utc',
+      }).toSQLDate(),
       reminderTime: taskDto.reminderTime,
       daysToRepeat,
     });

@@ -1,5 +1,6 @@
 // Imports
 import argon2 from 'argon2';
+import { DateTime } from 'luxon';
 import { getConnection } from 'typeorm';
 
 import UserService from '../UserService';
@@ -118,6 +119,11 @@ describe('User service', () => {
       // Persist user in database and retrieve ID
       const persistedUser = await repository.save(userData);
 
+      // Define expected dob value
+      const expectedDob = DateTime.fromJSDate(userData.dob, {
+        zone: 'utc',
+      }).toSQLDate();
+
       try {
         // Retrieve user from service
         const actualUser = await service.getByEmail(persistedUser.emailAddress);
@@ -133,7 +139,7 @@ describe('User service', () => {
           'emailAddress',
           persistedUser.emailAddress
         );
-        expect(actualUser).toHaveProperty('dob', persistedUser.dob);
+        expect(actualUser).toHaveProperty('dob', expectedDob);
 
         // Expect timestamp and password fields to be hidden
         expect(actualUser).not.toHaveProperty('createdAt');
@@ -172,8 +178,13 @@ describe('User service', () => {
         lastName: 'Doe',
         emailAddress: 'john@example.tld',
         password: 'johnpassword',
-        dob: '1970-01-01',
+        dob: DateTime.fromISO('1970-01-01', { zone: 'utc' }).toJSDate(),
       };
+
+      // Define expected dob value
+      const expectedDob = DateTime.fromJSDate(userDto.dob, {
+        zone: 'utc',
+      }).toSQLDate();
 
       // Use service to create new user
       await service.create(userDto);
@@ -202,7 +213,7 @@ describe('User service', () => {
         await expect(
           argon2.verify(createdUser.password, userDto.password)
         ).resolves.toBe(true);
-        expect(createdUser).toHaveProperty('dob', userDto.dob);
+        expect(createdUser).toHaveProperty('dob', expectedDob);
       } finally {
         // Delete created user
         await repository.remove(createdUser);
@@ -231,7 +242,7 @@ describe('User service', () => {
           lastName: 'Exampleton',
           emailAddress: 'edith@example.tld',
           password: 'edithpassword',
-          dob: '1975-01-01',
+          dob: DateTime.fromISO('1975-01-01', { zone: 'utc' }).toJSDate(),
         };
 
         // Update user using service
@@ -240,10 +251,15 @@ describe('User service', () => {
         // Retrieve updated user by ID
         const updatedUser = await repository.findOne(persistedUser.id);
 
+        // Define expected dob value
+        const expectedDob = DateTime.fromJSDate(updateData.dob, {
+          zone: 'utc',
+        }).toSQLDate();
+
         // Expect user to match update data
         expect(updatedUser).toHaveProperty('firstName', updateData.firstName);
         expect(updatedUser).toHaveProperty('lastName', updatedUser.lastName);
-        expect(updatedUser.dob).toEqual(updatedUser.dob);
+        expect(updatedUser).toHaveProperty('dob', expectedDob);
         expect(updatedUser).toHaveProperty(
           'emailAddress',
           updateData.emailAddress

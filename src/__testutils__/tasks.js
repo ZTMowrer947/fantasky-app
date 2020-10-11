@@ -1,5 +1,4 @@
 // Imports
-import dateFormat from 'dateformat';
 import { date, random } from 'faker';
 
 // Test helpers
@@ -13,7 +12,7 @@ function generateFakeTask(user) {
     description: null,
     daysToRepeat: 0b1111111,
     reminderTime: null,
-    startDate: dateFormat(startDate, 'isoDate'),
+    startDate,
     creator: user,
     completedDays: [],
   };
