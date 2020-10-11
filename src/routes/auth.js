@@ -1,7 +1,7 @@
 // Imports
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
-import { checkSchema, validationResult } from 'express-validator';
+import { body, checkSchema, validationResult } from 'express-validator';
 import { DateTime } from 'luxon';
 import passport from 'passport';
 
@@ -34,6 +34,7 @@ authRoutes
     res.render('auth/login');
   })
   .post(
+    body('emailAddress').normalizeEmail(),
     passport.authenticate('local', {
       failureRedirect: '/login',
       failureFlash: 'Incorrect email/password combination.',
