@@ -43,7 +43,16 @@ app.use('/public', express.static(publicDir));
 app.use(flash());
 app.use(express.urlencoded({ extended: true }));
 app.use(
-  session({ secret: sessionSecret, resave: false, saveUninitialized: false })
+  session({
+    cookie: {
+      sameSite: true,
+      secure: !!process.env.NODE_ENV,
+      maxAge: 86400000,
+    },
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+  })
 );
 app.use(passport.initialize());
 app.use(passport.session());
