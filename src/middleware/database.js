@@ -1,11 +1,13 @@
 // Imports
-import bootstrapDatabase from '../bootstrapDatabase';
+import { getConnection } from 'typeorm';
+
+import { selectDatabaseEnvironment } from '../bootstrapDatabase';
 
 // Middleware
-async function database(req, res, next) {
+function database(req, res, next) {
   try {
     // Initialize database connection
-    const connection = await bootstrapDatabase();
+    const connection = getConnection(selectDatabaseEnvironment());
 
     // Attach connection to request object
     req.db = connection;
