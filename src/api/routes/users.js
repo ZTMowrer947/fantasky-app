@@ -46,9 +46,6 @@ userRoutes
         })
         .getRawOne();
 
-      // Close database connection
-      await req.db.close();
-
       // Construct and set location header
       const location = `/api/users/${id}`;
       res.header('Location', location);

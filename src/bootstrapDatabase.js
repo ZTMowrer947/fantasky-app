@@ -1,5 +1,5 @@
 // Imports
-import { createConnection, getConnectionOptions } from 'typeorm';
+import { createConnection, getConnection, getConnectionOptions } from 'typeorm';
 
 import DaySchema from './entities/DaySchema';
 import TaskSchema from './entities/TaskSchema';
@@ -26,6 +26,11 @@ function selectDatabaseEnvironment() {
   }
 }
 
+// Database connection retrieval
+function getDatabaseConnection() {
+  return getConnection(selectDatabaseEnvironment());
+}
+
 // Database connection factory
 async function bootstrapDatabase() {
   // Select environment to create connection for
@@ -49,4 +54,4 @@ async function bootstrapDatabase() {
 
 // Exports
 export default bootstrapDatabase;
-export { selectDatabaseEnvironment };
+export { getDatabaseConnection, selectDatabaseEnvironment };

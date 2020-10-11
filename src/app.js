@@ -11,7 +11,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
 
 // import api from './api';
-import bootstrapDatabase from './bootstrapDatabase';
+import { getDatabaseConnection } from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
@@ -74,7 +74,7 @@ passport.use(
     },
     async (emailAddress, password, done) => {
       // Create database connection
-      const connection = await bootstrapDatabase();
+      const connection = getDatabaseConnection();
 
       try {
         // Instantiate user service
@@ -88,9 +88,6 @@ passport.use(
 
         // If they are invalid,
         if (!credentialsValid) {
-          // Close database connection
-          await connection.close();
-
           // Deny access
           return done(null, false);
         }
@@ -98,14 +95,10 @@ passport.use(
         // Otherwise, retrieve user data
         const user = await service.getByEmail(emailAddress);
 
-        // Close database connection
-        await connection.close();
-
         // Grant access
         return done(null, user);
       } catch (error) {
         // If an error occurs, close database connection
-        await connection.close();
 
         // Pass error through callback
         return done(error);
@@ -122,7 +115,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (emailAddress, done) => {
   // Create database connection
-  const connection = await bootstrapDatabase();
+  const connection = getDatabaseConnection();
 
   try {
     // Instantiate user service
@@ -130,9 +123,6 @@ passport.deserializeUser(async (emailAddress, done) => {
 
     // Retrieve user data
     const user = await service.getByEmail(emailAddress);
-
-    // Close database connection
-    await connection.close();
 
     // If user was found,
     if (user) {
@@ -144,7 +134,6 @@ passport.deserializeUser(async (emailAddress, done) => {
     return done(new Error('Serialized user could not be found.'));
   } catch (error) {
     // If an error occurs, close database connection
-    await connection.close();
 
     // Pass error through callback
     return done(error);

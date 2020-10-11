@@ -8,7 +8,7 @@ import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import apiErrorHandler from './middleware/apiErrorHandler';
 import tokenRoutes from './routes/token';
 import userRoutes from './routes/users';
-import bootstrapDatabase from '../bootstrapDatabase';
+import { getDatabaseConnection } from '../bootstrapDatabase';
 import { jwtSecret } from '../secrets';
 import TokenService from '../services/TokenService';
 import UserService from '../services/UserService';
@@ -27,7 +27,7 @@ api.use(passport.initialize());
 passport.use(
   new BasicStrategy(async (emailAddress, password, done) => {
     // Create database connection
-    const connection = await bootstrapDatabase();
+    const connection = getDatabaseConnection();
 
     try {
       // Instantiate user service
@@ -41,9 +41,6 @@ passport.use(
 
       // If they are invalid,
       if (!credentialsValid) {
-        // Close database connection
-        await connection.close();
-
         // Deny access
         return done(null, false);
       }
@@ -51,14 +48,10 @@ passport.use(
       // Otherwise, retrieve user data
       const user = await service.getByEmail(emailAddress);
 
-      // Close database connection
-      await connection.close();
-
       // Grant access
       return done(null, user);
     } catch (error) {
       // If an error occurs, close database connection
-      await connection.close();
 
       // Pass error through callback
       return done(error);
@@ -74,7 +67,7 @@ passport.use(
     },
     async (payload, done) => {
       // Create database connection
-      const connection = await bootstrapDatabase();
+      const connection = getDatabaseConnection();
 
       try {
         // Instantiate token and user services
@@ -86,23 +79,16 @@ passport.use(
 
         // If the token is invalid,
         if (!tokenValid) {
-          // Close database connection
-          await connection.close();
-
           // Deny access
           return done(null, false);
         }
         // Otherwise, retrieve user data
         const user = await userService.getByEmail(payload.sub);
 
-        // Close database connection
-        await connection.close();
-
         // Grant access
         return done(null, user);
       } catch (error) {
         // If an error occurs, close database connection
-        await connection.close();
 
         // Pass error through callback
         return done(error);

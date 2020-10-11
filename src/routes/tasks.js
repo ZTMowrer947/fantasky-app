@@ -29,9 +29,6 @@ taskRoutes
       // Retrieve tasks for user
       const tasks = await service.findAllForUser(req.user.id);
 
-      // Close database connection
-      await req.db.close();
-
       const daysOfWeek = [
         'Sunday',
         'Monday',
@@ -221,9 +218,6 @@ taskRoutes
       // Create task
       const id = await taskService.create(req.user, req.body);
 
-      // Close database connection
-      await req.db.close();
-
       // Redirect to details of newly created task
       res.redirect(`/tasks/${id}`);
     })
@@ -252,9 +246,6 @@ taskRoutes
 
         throw error;
       }
-
-      // Close database connection
-      await req.db.close();
 
       const daysOfWeek = [
         'Sunday',
@@ -437,9 +428,6 @@ taskRoutes
       // Toggle association between day and date
       await service.toggleForDay(task, day);
 
-      // Close database connection
-      await req.db.close();
-
       // Re-render task details
       res.redirect(`/tasks/${task.id}`);
     })
@@ -468,9 +456,6 @@ taskRoutes
 
         throw error;
       }
-
-      // Close database connection
-      await req.db.close();
 
       // Convert binary day representation into boolean values
       const [activeDays] = Array.from({ length: 7 }).reduce(
@@ -581,9 +566,6 @@ taskRoutes
       // Update task
       await service.update(task, req.body);
 
-      // Close database connection
-      await req.db.close();
-
       // Redirect to details for task
       res.redirect(`/tasks/${task.id}`);
     })
@@ -612,9 +594,6 @@ taskRoutes
 
         throw error;
       }
-
-      // Close database connection
-      await req.db.close();
 
       // Attach needed task data for view
       res.locals.task = {
@@ -649,9 +628,6 @@ taskRoutes
 
       // Delete task
       await service.delete(task);
-
-      // Close database connection
-      await req.db.close();
 
       // Redirect to task listing
       res.redirect('/tasks');

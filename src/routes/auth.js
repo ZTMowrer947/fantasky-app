@@ -56,9 +56,6 @@ authRoutes
 
       // If there are validation errors,
       if (!errors.isEmpty()) {
-        // Close database connection
-        await req.db.close();
-
         // Set status to 400
         res.status(400);
 
@@ -94,9 +91,6 @@ authRoutes
 
       // Retrieve newly created user
       const newUser = await service.getByEmail(userDto.emailAddress);
-
-      // Close database connection
-      await req.db.close();
 
       // Log in new user
       req.login(newUser, (err) => {
