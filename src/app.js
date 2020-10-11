@@ -2,6 +2,7 @@
 import flash from 'connect-flash';
 import express from 'express';
 import session from 'express-session';
+import createError from 'http-errors';
 import nunjucks from 'nunjucks';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
@@ -11,6 +12,7 @@ import api from './api';
 import bootstrapDatabase from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import closeDatabaseOnError from './middleware/closeDatabaseOnError';
+import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
 import { sessionSecret } from './secrets';
 import UserService from './services/UserService';
@@ -135,9 +137,16 @@ passport.deserializeUser(async (emailAddress, done) => {
 
 // Frontend routes
 app.use(frontendRoutes);
+app.use((req, res, next) => {
+  // Redirect all uncaught routes to 404 page
+  const error = createError(404);
+
+  next(error);
+});
 
 // Error handlers
 app.use(closeDatabaseOnError);
+app.use(errorHandler);
 
 // Exports
 export default app;

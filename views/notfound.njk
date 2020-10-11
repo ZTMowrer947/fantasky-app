@@ -1,0 +1,22 @@
+{% set title = "Not Found | Fantasky" %}
+
+{% extends "_layout.njk" %}
+
+{% block meta %}
+  <meta http-equiv="refresh" content="3; url=/tasks">
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-8">
+      <h1 class="display-4">Not Found</h1>
+
+      <p>We could not find the resource you were looking for.</p>
+      <p>Either it does not exist or you do not have permission to access it.</p>
+
+      <p>You should be redirected to the task listing in about 3 seconds. If this does not occur, click <a href="/tasks" class="text-danger">here.</a></p>
+    </div>
+    <div class="col"></div>
+  </div>
+{% endblock %}
