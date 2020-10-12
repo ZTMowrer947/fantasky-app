@@ -32,8 +32,17 @@ function errorHandler(err, req, res, next) {
     res.locals.stack = err.stack;
   }
 
-  // Render standard error page
-  res.render('error');
+  // If the error is a CSRF error,
+  if (err.code === 'EBADCSRFTOKEN') {
+    // Set status to 403
+    res.status(403);
+
+    // Render CSRF error page
+    res.render('csrf');
+  } else {
+    // Otherwise, render standard error page
+    res.render('error');
+  }
 }
 
 // Exports
