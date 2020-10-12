@@ -41,6 +41,7 @@ nunjucks.configure(viewDir, {
 });
 
 app.set('view engine', 'njk');
+app.set('trust proxy', 'loopback');
 
 // Middleware
 app.use('/public', express.static(publicDir));
