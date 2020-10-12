@@ -45,3 +45,7 @@
     {% endif %}
   </div>
 {% endmacro %}
+
+{% macro csrf(token) %}
+  <input type="hidden" name="_csrf" value="{{ token }}" />
+{% endmacro %}

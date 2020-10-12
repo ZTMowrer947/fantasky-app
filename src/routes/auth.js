@@ -1,4 +1,5 @@
 // Imports
+import csrf from '@/middleware/csrf';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { body, checkSchema, validationResult } from 'express-validator';
@@ -15,7 +16,7 @@ const authRoutes = Router();
 // Routes
 authRoutes
   .route('/login')
-  .get((req, res) => {
+  .get(csrf, (req, res) => {
     const [failureMessage] = req.flash('error');
 
     // If there is a failure message, set status to 401
@@ -24,10 +25,14 @@ authRoutes
     // Get flash message and attach to view locals
     res.locals.failureMessage = failureMessage;
 
+    // Attach CSRF token to view locals
+    res.locals.csrfToken = req.csrfToken();
+
     // Render login form
     res.render('auth/login');
   })
   .post(
+    csrf,
     body('emailAddress').normalizeEmail(),
     passport.authenticate('local', {
       failureRedirect: '/login',
@@ -38,10 +43,15 @@ authRoutes
 
 authRoutes
   .route('/register')
-  .get((req, res) => {
+  .get(csrf, (req, res) => {
+    // Attach CSRF token to view locals
+    res.locals.csrfToken = req.csrfToken();
+
+    // Render registration form
     res.render('auth/register');
   })
   .post(
+    csrf,
     database,
     checkSchema(frontendUserValidationSchema),
     asyncHandler(async (req, res, next) => {
@@ -65,6 +75,9 @@ authRoutes
           password: '',
           confirmPassword: '',
         };
+
+        // Attach CSRF token to view locals
+        res.locals.csrfToken = req.csrfToken();
 
         // Re-render registration form
         res.render('auth/register');

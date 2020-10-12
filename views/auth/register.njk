@@ -57,6 +57,8 @@
           }}
         {% endfor %}
 
+        {{ forms.csrf(csrfToken) }}
+
         <div class="btn-group mb-3">
           <button type="submit" class="btn btn-danger">Register</button>
           <a href="/login" class="btn btn-outline-danger">Log In</a>
