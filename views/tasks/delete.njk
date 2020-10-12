@@ -3,6 +3,8 @@
 
 {% extends "_layout.njk" %}
 
+{% import "../partials/_forms.njk" as forms %}
+
 {% block content %}
   <div class="row">
     <div class="col"></div>
@@ -19,6 +21,8 @@
 
       <form method="POST">
         <div class="btn-group">
+          {{ forms.csrf(csrfToken) }}
+
           <button type="submit" class="btn btn-danger">Yes, delete anyway</button>
           <a href="/tasks/{{ task.id }}" class="btn btn-outline-danger">No, go back</a>
         </div>

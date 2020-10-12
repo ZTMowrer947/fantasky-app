@@ -91,6 +91,8 @@
           {% endif %}
         </div>
 
+        {{ forms.csrf(csrfToken) }}
+
         <div class="btn-group mb-3">
           <button type="submit" class="btn btn-danger">Edit Task</button>
           <a href="/tasks" class="btn btn-outline-danger">Cancel</a>

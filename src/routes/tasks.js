@@ -9,6 +9,7 @@ import createError from 'http-errors';
 import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
+import csrf from '../middleware/csrf';
 import database from '../middleware/database';
 import TaskService from '../services/TaskService';
 import { taskValidationSchema } from '../validation/task';
@@ -147,16 +148,20 @@ taskRoutes
 
 taskRoutes
   .route('/new')
-  .get(ensureLoggedIn('/login'), (req, res) => {
+  .get(ensureLoggedIn('/login'), csrf, (req, res) => {
     res.locals.values = {
       startDate: DateTime.utc().toISODate(),
     };
+
+    // Attach CSRF token to view locals
+    res.locals.csrfToken = req.csrfToken();
 
     // Render task creation form
     res.render('tasks/new');
   })
   .post(
     ensureLoggedIn('/login'),
+    csrf,
     (req, res, next) => {
       // Get active days
       const { sun, mon, tue, wed, thu, fri, sat, ...baseTask } = req.body;
@@ -203,6 +208,9 @@ taskRoutes
           ...req.body.activeDays,
         };
 
+        // Attach CSRF token to view locals
+        res.locals.csrfToken = req.csrfToken();
+
         // Re-render task creation form
         res.render('tasks/new');
       } else {
@@ -228,6 +236,7 @@ taskRoutes
   .all(param('id').toInt())
   .get(
     ensureLoggedIn('/login'),
+    csrf,
     database,
     asyncHandler(async (req, res) => {
       // Instantiate task service
@@ -385,12 +394,16 @@ taskRoutes
 
       res.locals.activity = pastThreeWeeks;
 
+      // Attach CSRF token to view locals
+      res.locals.csrfToken = req.csrfToken();
+
       // Render task detail view
       res.render('tasks/detail');
     })
   )
   .post(
     ensureLoggedIn('/login'),
+    csrf,
     database,
     asyncHandler(async (req, res) => {
       // Instantiate task service
@@ -438,6 +451,7 @@ taskRoutes
   .all(param('id').toInt())
   .get(
     ensureLoggedIn('/login'),
+    csrf,
     database,
     asyncHandler(async (req, res) => {
       // Instantiate task service
@@ -485,12 +499,16 @@ taskRoutes
       };
       res.locals.taskId = task.id;
 
+      // Attach CSRF token to view locals
+      res.locals.csrfToken = req.csrfToken();
+
       // Render task modification form
       res.render('tasks/edit');
     })
   )
   .post(
     ensureLoggedIn('/login'),
+    csrf,
     (req, res, next) => {
       // Get active days
       const { sun, mon, tue, wed, thu, fri, sat, ...baseTask } = req.body;
@@ -537,6 +555,9 @@ taskRoutes
           ...req.body.activeDays,
         };
 
+        // Attach CSRF token to view locals
+        res.locals.csrfToken = req.csrfToken();
+
         // Re-render task modification form
         res.render('tasks/edit');
       } else {
@@ -576,6 +597,7 @@ taskRoutes
   .all(param('id').toInt())
   .get(
     ensureLoggedIn('/login'),
+    csrf,
     database,
     asyncHandler(async (req, res) => {
       // Instantiate task service
@@ -601,12 +623,16 @@ taskRoutes
         name: task.name,
       };
 
+      // Attach CSRF token to view locals
+      res.locals.csrfToken = req.csrfToken();
+
       // Render deletion confirmation
       res.render('tasks/delete');
     })
   )
   .post(
     ensureLoggedIn('/login'),
+    csrf,
     database,
     asyncHandler(async (req, res) => {
       // Instantiate task service

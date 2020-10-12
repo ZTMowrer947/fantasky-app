@@ -3,6 +3,8 @@
 
 {% extends "_layout.njk" %}
 
+{% import "../partials/_forms.njk" as forms %}
+
 {% block content %}
   <a class="text-danger text-decoration-none" href="/tasks">
     &lt; Return to Task Listing
@@ -49,6 +51,7 @@
 
   <form class="form-inline" method="POST">
     <div class="btn-group">
+      {{ forms.csrf(csrfToken) }}
       <button class="btn btn-outline-danger">Toggle for Today</button>
       <a href="/tasks/{{ task.id }}/edit" class="btn btn-outline-danger">Edit Task</a>
       <a href="/tasks/{{ task.id }}/delete" class="btn btn-danger">DELETE Task</a>
