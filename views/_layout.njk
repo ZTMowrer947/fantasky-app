@@ -6,14 +6,20 @@
       {% endblock %}
       {% block styles %}
           <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+          <style>
+            html, body {
+              height: 100%;
+            }
+          </style>
       {% endblock %}
     </head>
-    <body>
+    <body class="d-flex flex-column">
         {% include "partials/_header.njk" %}
-        <div class="container-fluid mt-5">
+        <div class="container-fluid w-100 flex-grow-1 flex-shrink-0">
             {% block content %}
             {% endblock %}
         </div>
+        {% include "partials/_footer.njk" %}
 
         {% block scripts %}
             <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
