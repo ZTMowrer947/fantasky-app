@@ -8,11 +8,11 @@
     &lt; Return to Task Listing
   </a>
 
-  <h1 class="mt-4">{{ task.name }}</h1>
+  <h1 class="mt-4">{{ task.name | safe }}</h1>
   <p>{{ task.activeDays }}</p>
 
   {% if task.description %}
-    <p class="lead">{{ task.description }}</p>
+    <p class="lead">{{ task.description | safe }}</p>
   {% endif %}
 
   <div class="row mt-3">

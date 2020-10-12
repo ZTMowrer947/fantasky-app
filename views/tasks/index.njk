@@ -63,7 +63,7 @@
         href="/tasks/{{ task.id }}"
       >
         <h3 class="task-title">
-          {{ task.name | e }}
+          {{ task.name | safe }}
         </h3>
 
         <p class="task-timing">{{ task.activeDays }}</p>
