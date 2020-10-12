@@ -3,6 +3,7 @@ import flash from 'connect-flash';
 import createRedisStore from 'connect-redis';
 import express from 'express';
 import session from 'express-session';
+import helmet from 'helmet';
 import createError from 'http-errors';
 import Redis from 'ioredis';
 import nunjucks from 'nunjucks';
@@ -44,6 +45,20 @@ app.set('view engine', 'njk');
 app.set('trust proxy', 'loopback');
 
 // Middleware
+app.use(helmet.noSniff());
+app.use(helmet.ieNoOpen());
+app.use(helmet.frameguard());
+app.use(
+  helmet.referrerPolicy({
+    policy: 'same-origin',
+  })
+);
+app.use(
+  helmet.permittedCrossDomainPolicies({
+    permittedPolicies: 'none',
+  })
+);
+app.use(helmet.xssFilter());
 app.use('/public', express.static(publicDir));
 // app.use('/api', api);
 
