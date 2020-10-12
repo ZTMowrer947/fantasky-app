@@ -64,6 +64,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(attachLoginStatusToView);
+app.use((req, res, next) => {
+  // Determine whether security seal should be displayed
+  const showSeal = app.get('env') === 'production';
+
+  // Attach result to view locals
+  res.locals.showSeal = showSeal;
+
+  // Proceed with middleware chain
+  next();
+});
 
 // Passport strategy
 passport.use(

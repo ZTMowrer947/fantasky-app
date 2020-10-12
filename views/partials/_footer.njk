@@ -2,5 +2,11 @@
   <div class="spacer d-none d-lg-block"></div>
   <p>&copy; 2020 West Virginia Coding Club</p>
   <a href="https://github.com/ZTMowrer947/fantasky-app" rel="noopener noreferrer" target="_blank">GitHub</a>
-  <div class="spacer d-none d-lg-block"></div>
+  {% if showSeal %}
+    <div class="spacer">
+      <span id="siteseal"><script async type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=ApI1huXGrj1NDvXHVDaP5DkpSl2I1gVxwsS3tTutUdMdD7JfOrbpQIE7mBTH"></script></span>
+    </div>
+  {% else %}
+    <div class="spacer d-none d-lg-block"></div>
+  {% endif %}
 </footer>
