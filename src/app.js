@@ -71,6 +71,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production',
       maxAge: 86400000,
     },
+    name: 'fts.sessid',
     secret: sessionSecret,
     store: sessionStore,
     resave: false,
