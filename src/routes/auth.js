@@ -1,14 +1,16 @@
 // Imports
-import csrf from '@/middleware/csrf';
+import { plainToClass } from 'class-transformer';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { body, checkSchema, validationResult } from 'express-validator';
 import { DateTime } from 'luxon';
 import passport from 'passport';
 
-import database from '../middleware/database';
-import UserService from '../services/UserService';
-import { frontendUserValidationSchema } from '../validation/user';
+import UpsertUserDto from '@/dto/UpsertUserDto';
+import csrf from '@/middleware/csrf';
+import database from '@/middleware/database';
+import UserService from '@/services/UserService';
+import { frontendUserValidationSchema } from '@/validation/user';
 
 // Express router setup
 const authRoutes = Router();
@@ -90,8 +92,13 @@ authRoutes
       // Instantiate user service
       const service = new UserService(req.db);
 
-      // Define user data
-      const { confirmPassword, ...userDto } = req.body;
+      // Define user DTO from form data
+      const userData = req.body;
+      userData.dob = DateTime.fromJSDate(userData.dob, {
+        zone: 'utc',
+      }).toSQLDate();
+
+      const userDto = plainToClass(UpsertUserDto, userData);
 
       // Create new user
       await service.create(userDto);
