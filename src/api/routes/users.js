@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { checkSchema } from 'express-validator';
 import passport from 'passport';
 
-import UserSchema from '../../entities/UserSchema';
+import User from '../../entities/User';
 import database from '../../middleware/database';
 import validateBody from '../middleware/validateBody';
 import UserService from '../../services/UserService';
@@ -38,7 +38,7 @@ userRoutes
 
       // Retrieve ID of newly created user
       const { id } = await req.db
-        .getRepository(UserSchema)
+        .getRepository(User)
         .createQueryBuilder('user')
         .select('user.id', 'id')
         .where('user.emailAddress = :emailAddress', {

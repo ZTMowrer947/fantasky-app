@@ -1,7 +1,7 @@
 // Imports
 import { DateTime } from 'luxon';
 
-import TaskSchema from '../entities/TaskSchema';
+import Task from '../entities/Task';
 
 // Service
 class TaskService {
@@ -14,7 +14,7 @@ class TaskService {
    * @param {import("typeorm").Connection} connection
    */
   constructor(connection) {
-    this.#repository = connection.getRepository(TaskSchema);
+    this.#repository = connection.getRepository(Task);
   }
 
   async findAllForUser(userId) {

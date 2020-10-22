@@ -7,9 +7,9 @@ import { generateFakeDay } from '../../__testutils__/day';
 import { generateFakeTask } from '../../__testutils__/tasks';
 import { generateFakeUser } from '../../__testutils__/users';
 import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
-import DaySchema from '../../entities/DaySchema';
-import TaskSchema from '../../entities/TaskSchema';
-import UserSchema from '../../entities/UserSchema';
+import Day from '../../entities/Day';
+import Task from '../../entities/Task';
+import User from '../../entities/User';
 
 // Test Setup
 function setupService() {
@@ -35,8 +35,8 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task and user repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
 
       // Define data for two test users
       const user1Data = await generateFakeUser();
@@ -97,8 +97,8 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task and user repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
 
       // Create test user
       const userData = await generateFakeUser();
@@ -148,8 +148,8 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task and user repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
 
       // Create test user
       const userData = await generateFakeUser();
@@ -221,9 +221,9 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task, user, and day repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
-      const dayRepository = manager.getRepository(DaySchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
+      const dayRepository = manager.getRepository(Day);
 
       // Create test user
       const userData = await generateFakeUser();
@@ -263,9 +263,9 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task, user, and day repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
-      const dayRepository = manager.getRepository(DaySchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
+      const dayRepository = manager.getRepository(Day);
 
       // Create test user
       const userData = await generateFakeUser();
@@ -308,8 +308,8 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task and user repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
 
       // Create test user
       const userData = await generateFakeUser();
@@ -381,8 +381,8 @@ describe('Task service', () => {
       const { manager, service } = setupService();
 
       // Get task and user repositories
-      const taskRepository = manager.getRepository(TaskSchema);
-      const userRepository = manager.getRepository(UserSchema);
+      const taskRepository = manager.getRepository(Task);
+      const userRepository = manager.getRepository(User);
 
       // Create test user
       const userData = await generateFakeUser();

@@ -1,5 +1,5 @@
 // Imports
-import UserSchema from '../entities/UserSchema';
+import User from '../entities/User';
 
 // Service
 class TokenService {
@@ -12,7 +12,7 @@ class TokenService {
    * @param {import("typeorm").Connection} connection
    */
   constructor(connection) {
-    this.#repository = connection.getRepository(UserSchema);
+    this.#repository = connection.getRepository(User);
   }
 
   async verifyPayload(payload) {

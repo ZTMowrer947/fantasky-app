@@ -1,5 +1,5 @@
 // Imports
-import UserSchema from '../entities/UserSchema';
+import User from '../entities/User';
 
 // Validation schemas
 /**
@@ -33,7 +33,7 @@ const apiUserValidationSchema = {
     custom: {
       async options(value, { req }) {
         // Get repository from database connection
-        const repository = req.db.getRepository(UserSchema);
+        const repository = req.db.getRepository(User);
 
         // Check if any accounts are using the provided email address
         const emailCount = await repository.count({ emailAddress: value });

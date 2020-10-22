@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
-import DaySchema from '@/entities/DaySchema';
+import Day from '@/entities/Day';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
@@ -427,13 +427,13 @@ taskRoutes
       const today = DateTime.utc().toISODate();
 
       // Query for day with current date
-      let day = await req.db.getRepository(DaySchema).findOne({
+      let day = await req.db.getRepository(Day).findOne({
         date: today,
       });
 
       // If day was not found, create it
       if (!day) {
-        day = await req.db.getRepository(DaySchema).save({
+        day = await req.db.getRepository(Day).save({
           date: today,
         });
       }
