@@ -1,9 +1,13 @@
 // Imports
+import { plainToClass } from 'class-transformer';
 import { date, internet, name } from 'faker';
 import { DateTime } from 'luxon';
 
+import UpsertUserDto from '@/dto/UpsertUserDto';
+import User from '@/entities/User';
+
 // Test helpers
-function generateFakeUser() {
+function generateFakeUserData() {
   // Generate random name for user
   const firstName = name.firstName();
   const lastName = name.lastName();
@@ -14,7 +18,7 @@ function generateFakeUser() {
   }).toSQLDate();
 
   // Define user data
-  const user = {
+  const userData = {
     firstName,
     lastName,
     emailAddress: internet.email(firstName, lastName),
@@ -22,10 +26,30 @@ function generateFakeUser() {
     dob,
   };
 
+  return userData;
+}
+
+function generateFakeUserDto() {
+  // Define user data
+  const userData = generateFakeUserData();
+
+  // Convert to DTO class
+  const userDto = plainToClass(UpsertUserDto, userData);
+
+  // Return generated user
+  return userDto;
+}
+
+function generateFakeUser() {
+  // Define user data
+  const userData = generateFakeUserData();
+
+  // Convert into user class
+  const user = plainToClass(User, userData);
+
   // Return generated user
   return user;
 }
 
 // Exports
-// eslint-disable-next-line import/prefer-default-export
-export { generateFakeUser };
+export { generateFakeUser, generateFakeUserDto };

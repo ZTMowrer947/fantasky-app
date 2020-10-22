@@ -5,9 +5,7 @@ import { getConnection } from 'typeorm';
 import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
 import User from '@/entities/User';
 import UserService from '@/services/UserService';
-import { generateFakeUser } from '@/__testutils__/users';
-import { plainToClass } from 'class-transformer';
-import UpsertUserDto from '@/dto/UpsertUserDto';
+import { generateFakeUser, generateFakeUserDto } from '@/__testutils__/users';
 
 // Test Setup
 function setupService() {
@@ -50,11 +48,14 @@ describe('User service', () => {
       const repository = manager.getRepository(User);
 
       // Create test user
-      const userData = generateFakeUser();
-      const user = plainToClass(User, userData);
+      const user = generateFakeUser();
 
       // Persist user in database and retrieve ID
       const { id } = await repository.save(user);
+
+      // Attach id to user
+      user.id = id;
+
       try {
         // Define incorrect password
         const password = 'wrongpassword';
@@ -65,7 +66,6 @@ describe('User service', () => {
         ).resolves.toBeFalsy();
       } finally {
         // Remove persisted user
-        user.id = id;
         await repository.remove(user);
       }
     });
@@ -77,24 +77,26 @@ describe('User service', () => {
       // Get user repository
       const repository = manager.getRepository(User);
 
-      // Define test user
-      const userData = generateFakeUser();
-      const user = plainToClass(User, userData);
+      // Create test user
+      const user = generateFakeUser();
+
+      // Store password before hashing
+      const { password } = user;
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(user);
+      const { id } = await repository.save(user);
+
+      // Attach id to user
+      user.id = id;
 
       try {
         // Expect credential verification to succeed
         await expect(
-          service.verifyCredentials(
-            persistedUser.emailAddress,
-            userData.password
-          )
+          service.verifyCredentials(user.emailAddress, password)
         ).resolves.toBeTruthy();
       } finally {
         // Remove persisted user
-        await repository.remove(persistedUser);
+        await repository.remove(user);
       }
     });
   });
@@ -107,12 +109,14 @@ describe('User service', () => {
       // Get user repository
       const repository = manager.getRepository(User);
 
-      // Define test user
-      const userData = generateFakeUser();
-      const user = plainToClass(User, userData);
+      // Create test user
+      const user = generateFakeUser();
 
       // Persist user in database and retrieve ID
       const { id } = await repository.save(user);
+
+      // Attach id to user
+      user.id = id;
 
       try {
         // Retrieve user from service
@@ -135,7 +139,6 @@ describe('User service', () => {
         expect(actualUser).not.toHaveProperty('password');
       } finally {
         // Remove user from database
-        user.id = id;
         await repository.remove(user);
       }
     });
@@ -161,8 +164,7 @@ describe('User service', () => {
       const repository = manager.getRepository(User);
 
       // Define user DTO
-      const userData = generateFakeUser();
-      const userDto = plainToClass(UpsertUserDto, userData);
+      const userDto = generateFakeUserDto();
 
       // Use service to create new user
       await service.create(userDto);
@@ -208,8 +210,7 @@ describe('User service', () => {
       const repository = manager.getRepository(User);
 
       // Create test user
-      const userData = generateFakeUser();
-      const user = plainToClass(User, userData);
+      const user = generateFakeUser();
 
       // Persist user in database and retrieve ID
       const { id } = await repository.save(user);
@@ -219,8 +220,7 @@ describe('User service', () => {
 
       try {
         // Define update data
-        const updateData = generateFakeUser();
-        const updateDto = plainToClass(UpsertUserDto, updateData);
+        const updateDto = generateFakeUserDto();
 
         // Update user using service
         await service.update(user, updateDto);
@@ -231,7 +231,7 @@ describe('User service', () => {
         // Expect user to match update data
         expect(updatedUser).toHaveProperty('firstName', updateDto.firstName);
         expect(updatedUser).toHaveProperty('lastName', updateDto.lastName);
-        expect(updatedUser).toHaveProperty('dob', updateData.dob);
+        expect(updatedUser).toHaveProperty('dob', updateDto.dob);
         expect(updatedUser).toHaveProperty(
           'emailAddress',
           updateDto.emailAddress
@@ -252,8 +252,7 @@ describe('User service', () => {
       const repository = manager.getRepository(User);
 
       // Create test user
-      const userData = generateFakeUser();
-      const user = plainToClass(User, userData);
+      const user = generateFakeUser();
 
       // Persist user in database and retrieve ID
       const { id } = await repository.save(user);
