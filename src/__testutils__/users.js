@@ -1,22 +1,24 @@
 // Imports
-import argon2 from 'argon2';
 import { date, internet, name } from 'faker';
+import { DateTime } from 'luxon';
 
 // Test helpers
-async function generateFakeUser() {
+function generateFakeUser() {
   // Generate random name for user
   const firstName = name.firstName();
   const lastName = name.lastName();
 
   // Generate random dob
-  const dob = date.past(35, '2005-06-01');
+  const dob = DateTime.fromJSDate(date.past(35, '2005-06-01'), {
+    zone: 'utc',
+  }).toSQLDate();
 
   // Define user data
   const user = {
     firstName,
     lastName,
     emailAddress: internet.email(firstName, lastName),
-    password: await argon2.hash(internet.password(24)),
+    password: internet.password(24),
     dob,
   };
 

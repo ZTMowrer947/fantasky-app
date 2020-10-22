@@ -1,12 +1,13 @@
 // Imports
 import argon2 from 'argon2';
-import { DateTime } from 'luxon';
 import { getConnection } from 'typeorm';
 
-import UserService from '../UserService';
-import { generateFakeUser } from '../../__testutils__/users';
-import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
-import UserSchema from '../../entities/UserSchema';
+import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
+import User from '@/entities/User';
+import UserService from '@/services/UserService';
+import { generateFakeUser } from '@/__testutils__/users';
+import { plainToClass } from 'class-transformer';
+import UpsertUserDto from '@/dto/UpsertUserDto';
 
 // Test Setup
 function setupService() {
@@ -46,30 +47,26 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
       // Create test user
-      const userData = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: await argon2.hash('johnpassword'),
-        dob: '1970-01-01',
-      };
+      const userData = generateFakeUser();
+      const user = plainToClass(User, userData);
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(userData);
+      const { id } = await repository.save(user);
       try {
         // Define incorrect password
         const password = 'wrongpassword';
 
         // Expect credential verification to fail
         await expect(
-          service.verifyCredentials(persistedUser.emailAddress, password)
+          service.verifyCredentials(user.emailAddress, password)
         ).resolves.toBeFalsy();
       } finally {
         // Remove persisted user
-        await repository.remove(persistedUser);
+        user.id = id;
+        await repository.remove(user);
       }
     });
 
@@ -78,25 +75,22 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
-      // Define password and test user
-      const password = 'johnpassword';
-      const userData = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: await argon2.hash(password),
-        dob: '1970-01-01',
-      };
+      // Define test user
+      const userData = generateFakeUser();
+      const user = plainToClass(User, userData);
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(userData);
+      const persistedUser = await repository.save(user);
 
       try {
         // Expect credential verification to succeed
         await expect(
-          service.verifyCredentials(persistedUser.emailAddress, password)
+          service.verifyCredentials(
+            persistedUser.emailAddress,
+            userData.password
+          )
         ).resolves.toBeTruthy();
       } finally {
         // Remove persisted user
@@ -111,35 +105,28 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
       // Define test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
+      const user = plainToClass(User, userData);
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(userData);
-
-      // Define expected dob value
-      const expectedDob = DateTime.fromJSDate(userData.dob, {
-        zone: 'utc',
-      }).toSQLDate();
+      const { id } = await repository.save(user);
 
       try {
         // Retrieve user from service
-        const actualUser = await service.getByEmail(persistedUser.emailAddress);
+        const actualUser = await service.getByEmail(user.emailAddress);
 
         // Expect user retrieved from service to be defined
         expect(actualUser).toBeDefined();
 
         // Expect this user to include ID, full name, email, and dob fields
-        expect(actualUser).toHaveProperty('id', persistedUser.id);
-        expect(actualUser).toHaveProperty('firstName', persistedUser.firstName);
-        expect(actualUser).toHaveProperty('lastName', persistedUser.lastName);
-        expect(actualUser).toHaveProperty(
-          'emailAddress',
-          persistedUser.emailAddress
-        );
-        expect(actualUser).toHaveProperty('dob', expectedDob);
+        expect(actualUser).toHaveProperty('id', id);
+        expect(actualUser).toHaveProperty('firstName', user.firstName);
+        expect(actualUser).toHaveProperty('lastName', user.lastName);
+        expect(actualUser).toHaveProperty('emailAddress', user.emailAddress);
+        expect(actualUser).toHaveProperty('dob', user.dob);
 
         // Expect timestamp and password fields to be hidden
         expect(actualUser).not.toHaveProperty('createdAt');
@@ -148,7 +135,8 @@ describe('User service', () => {
         expect(actualUser).not.toHaveProperty('password');
       } finally {
         // Remove user from database
-        await repository.remove(persistedUser);
+        user.id = id;
+        await repository.remove(user);
       }
     });
 
@@ -170,21 +158,11 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
       // Define user DTO
-      const userDto = {
-        firstName: 'John',
-        lastName: 'Doe',
-        emailAddress: 'john@example.tld',
-        password: 'johnpassword',
-        dob: DateTime.fromISO('1970-01-01', { zone: 'utc' }).toJSDate(),
-      };
-
-      // Define expected dob value
-      const expectedDob = DateTime.fromJSDate(userDto.dob, {
-        zone: 'utc',
-      }).toSQLDate();
+      const userData = generateFakeUser();
+      const userDto = plainToClass(UpsertUserDto, userData);
 
       // Use service to create new user
       await service.create(userDto);
@@ -213,7 +191,7 @@ describe('User service', () => {
         await expect(
           argon2.verify(createdUser.password, userDto.password)
         ).resolves.toBe(true);
-        expect(createdUser).toHaveProperty('dob', expectedDob);
+        expect(createdUser).toHaveProperty('dob', userDto.dob);
       } finally {
         // Delete created user
         await repository.remove(createdUser);
@@ -227,46 +205,40 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
-      // Define test user
-      const userData = await generateFakeUser();
+      // Create test user
+      const userData = generateFakeUser();
+      const user = plainToClass(User, userData);
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(userData);
+      const { id } = await repository.save(user);
+
+      // Attach ID to user
+      user.id = id;
 
       try {
         // Define update data
-        const updateData = {
-          firstName: 'Edith',
-          lastName: 'Exampleton',
-          emailAddress: 'edith@example.tld',
-          password: 'edithpassword',
-          dob: DateTime.fromISO('1975-01-01', { zone: 'utc' }).toJSDate(),
-        };
+        const updateData = generateFakeUser();
+        const updateDto = plainToClass(UpsertUserDto, updateData);
 
         // Update user using service
-        await service.update(persistedUser, updateData);
+        await service.update(user, updateDto);
 
         // Retrieve updated user by ID
-        const updatedUser = await repository.findOne(persistedUser.id);
-
-        // Define expected dob value
-        const expectedDob = DateTime.fromJSDate(updateData.dob, {
-          zone: 'utc',
-        }).toSQLDate();
+        const updatedUser = await repository.findOne(user.id);
 
         // Expect user to match update data
-        expect(updatedUser).toHaveProperty('firstName', updateData.firstName);
-        expect(updatedUser).toHaveProperty('lastName', updatedUser.lastName);
-        expect(updatedUser).toHaveProperty('dob', expectedDob);
+        expect(updatedUser).toHaveProperty('firstName', updateDto.firstName);
+        expect(updatedUser).toHaveProperty('lastName', updateDto.lastName);
+        expect(updatedUser).toHaveProperty('dob', updateData.dob);
         expect(updatedUser).toHaveProperty(
           'emailAddress',
-          updateData.emailAddress
+          updateDto.emailAddress
         );
       } finally {
         // Delete user created for test
-        await repository.remove(persistedUser);
+        await repository.remove(user);
       }
     });
   });
@@ -277,33 +249,33 @@ describe('User service', () => {
       const { manager, service } = setupService();
 
       // Get user repository
-      const repository = manager.getRepository(UserSchema);
+      const repository = manager.getRepository(User);
 
-      // Define test user
-      const userData = await generateFakeUser();
+      // Create test user
+      const userData = generateFakeUser();
+      const user = plainToClass(User, userData);
 
       // Persist user in database and retrieve ID
-      const persistedUser = await repository.save(userData);
+      const { id } = await repository.save(user);
+
+      // Attach ID to user
+      user.id = id;
 
       try {
         // Delete user through service
-        await service.delete(persistedUser);
+        await service.delete(user);
 
         // Expect attempt to retrieve user again to result in undefined
-        await expect(
-          repository.findOne(persistedUser.id)
-        ).resolves.toBeUndefined();
+        await expect(repository.findOne(id)).resolves.toBeUndefined();
 
         // Recover user
-        await repository.recover(persistedUser);
+        await repository.recover(user);
 
         // Expect attempt to retrieve user once again to succeed
-        await expect(
-          repository.findOne(persistedUser.id)
-        ).resolves.toBeDefined();
+        await expect(repository.findOne(id)).resolves.toBeDefined();
       } finally {
         // Hard-delete user
-        await repository.remove(persistedUser);
+        await repository.remove(user);
       }
     });
   });
