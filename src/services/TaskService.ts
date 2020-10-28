@@ -1,23 +1,20 @@
 // Imports
-import { DateTime } from 'luxon';
+import { Connection, Repository } from 'typeorm';
 
-import Task from '../entities/Task';
+import Task from '@/entities/Task';
+import User from '@/entities/User';
+import UpsertTaskDto from '@/dto/UpsertTaskDto';
+import Day from '@/entities/Day';
 
 // Service
 class TaskService {
-  /**
-   * @type {import("typeorm").Repository}
-   */
-  #repository;
+  #repository: Repository<Task>;
 
-  /**
-   * @param {import("typeorm").Connection} connection
-   */
-  constructor(connection) {
+  constructor(connection: Connection) {
     this.#repository = connection.getRepository(Task);
   }
 
-  async findAllForUser(userId) {
+  async findAllForUser(userId: number): Promise<Task[]> {
     // Create query for task
     const query = this.#repository
       .createQueryBuilder('task')
@@ -30,7 +27,7 @@ class TaskService {
     return query.getMany();
   }
 
-  async findById(id) {
+  async findById(id: number): Promise<Task | undefined> {
     // Create query for task
     const query = this.#repository
       .createQueryBuilder('task')
@@ -43,7 +40,7 @@ class TaskService {
     return query.getOne();
   }
 
-  async create(user, taskDto) {
+  async create(user: User, taskDto: UpsertTaskDto): Promise<number> {
     // Get active days data
     const { activeDays } = taskDto;
 
@@ -64,16 +61,13 @@ class TaskService {
       );
 
     // Define new task
-    const task = {
-      name: taskDto.name,
-      description: taskDto.description,
-      startDate: DateTime.fromJSDate(taskDto.startDate, {
-        zone: 'utc',
-      }).toSQLDate(),
-      reminderTime: taskDto.reminderTime,
-      daysToRepeat,
-      creator: user,
-    };
+    const task = new Task();
+    task.name = taskDto.name;
+    task.description = taskDto.description;
+    task.startDate = taskDto.startDate;
+    task.reminderTime = taskDto.reminderTime;
+    task.daysToRepeat = daysToRepeat;
+    task.creator = user;
 
     // Persist task to database
     const { id } = await this.#repository.save(task);
@@ -82,13 +76,14 @@ class TaskService {
     return id;
   }
 
-  async toggleForDay(task, day) {
+  async toggleForDay(task: Task, day: Day): Promise<void> {
     // Attempt to find day in relation data for task
-    const matchingDay = await this.#repository
-      .createQueryBuilder()
-      .relation('completedDays')
-      .of(task)
-      .loadOne(day.id);
+    const matchingDay = await this.#repository.manager
+      .createQueryBuilder(Day, 'day')
+      .innerJoin('day.tasksCompleted', 'task')
+      .where('task.id = :taskId', { taskId: task.id })
+      .andWhere('day.id = :dayId', { dayId: day.id })
+      .getOne();
 
     // If day is present,
     if (matchingDay) {
@@ -108,7 +103,7 @@ class TaskService {
     }
   }
 
-  async update(task, taskDto) {
+  async update(task: Task, taskDto: UpsertTaskDto): Promise<void> {
     // Get active days data
     const { activeDays } = taskDto;
 
@@ -133,18 +128,20 @@ class TaskService {
       id: task.id,
       name: taskDto.name,
       description: taskDto.description,
-      startDate: DateTime.fromJSDate(taskDto.startDate, {
-        zone: 'utc',
-      }).toSQLDate(),
+      startDate: taskDto.startDate,
       reminderTime: taskDto.reminderTime,
       daysToRepeat,
     });
+
+    // If preloaded task is not defined, throw error
+    if (!updatedTask)
+      throw new Error(`Task with id "${task.id}" does not exist`);
 
     // Persist updated task to database
     await this.#repository.save(updatedTask);
   }
 
-  async delete(task) {
+  async delete(task: Task): Promise<void> {
     // Delete task
     await this.#repository.remove(task);
   }
