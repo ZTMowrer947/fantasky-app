@@ -1,15 +1,14 @@
 // Imports
-import { DateTime } from 'luxon';
 import { getConnection } from 'typeorm';
 
+import { generateFakeDay } from '@/__testutils__/day';
+import { generateFakeTask, generateFakeTaskDto } from '@/__testutils__/tasks';
+import { generateFakeUser } from '@/__testutils__/users';
+import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
+import Day from '@/entities/Day';
+import Task from '@/entities/Task';
+import User from '@/entities/User';
 import TaskService from '../TaskService';
-import { generateFakeDay } from '../../__testutils__/day';
-import { generateFakeTask } from '../../__testutils__/tasks';
-import { generateFakeUser } from '../../__testutils__/users';
-import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
-import Day from '../../entities/Day';
-import Task from '../../entities/Task';
-import User from '../../entities/User';
 
 // Test Setup
 function setupService() {
@@ -39,8 +38,8 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(User);
 
       // Define data for two test users
-      const user1Data = await generateFakeUser();
-      const user2Data = await generateFakeUser();
+      const user1Data = generateFakeUser();
+      const user2Data = generateFakeUser();
 
       // Persist the two users
       const [user1, user2] = await userRepository.save([user1Data, user2Data]);
@@ -101,7 +100,7 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(User);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       // Create test task belonging to user
@@ -152,37 +151,28 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(User);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       try {
-        // Generate test task data
-        const { name, description, reminderTime, startDate } = generateFakeTask(
-          user
-        );
-
         // Define task DTO from data
-        const taskDto = {
-          name,
-          description,
-          reminderTime,
-          startDate,
-          activeDays: {
-            sun: true,
-            mon: true,
-            tue: true,
-            wed: true,
-            thu: true,
-            fri: true,
-            sat: true,
-          },
-        };
+        const taskDto = generateFakeTaskDto();
 
         // Define expected daysToRepeat and startDate values
-        const expectedDaysToRepeat = 0b1111111;
-        const expectedStartDate = DateTime.fromJSDate(taskDto.startDate, {
-          zone: 'utc',
-        }).toSQLDate();
+        const expectedDaysToRepeat = [
+          taskDto.activeDays.sun,
+          taskDto.activeDays.mon,
+          taskDto.activeDays.tue,
+          taskDto.activeDays.wed,
+          taskDto.activeDays.thu,
+          taskDto.activeDays.fri,
+          taskDto.activeDays.sat,
+        ]
+          .reverse()
+          .reduce(
+            (accum, dayEnabled, index) => accum + +dayEnabled * 2 ** index,
+            0
+          );
 
         // Create task and get ID
         const id = await service.create(user, taskDto);
@@ -203,13 +193,21 @@ describe('Task service', () => {
           'reminderTime',
           taskDto.reminderTime
         );
-        expect(retrievedTask).toHaveProperty('startDate', expectedStartDate);
+        expect(retrievedTask).toHaveProperty('startDate', taskDto.startDate);
         expect(retrievedTask).toHaveProperty(
           'daysToRepeat',
           expectedDaysToRepeat
         );
       } finally {
+        // Find and delete any tasks associated with test user
+        const tasks = await manager
+          .createQueryBuilder()
+          .relation(User, 'tasks')
+          .of(user)
+          .loadMany();
+
         // Remove test user and associated tasks
+        await taskRepository.remove(tasks);
         await userRepository.remove(user);
       }
     });
@@ -226,7 +224,7 @@ describe('Task service', () => {
       const dayRepository = manager.getRepository(Day);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       // Create test task belonging to user
@@ -242,11 +240,12 @@ describe('Task service', () => {
         await service.toggleForDay(task, day);
 
         // Query relation for newly attached day
-        const attachedDay = await taskRepository
-          .createQueryBuilder()
-          .relation('completedDays')
-          .of(task)
-          .loadOne(day.id);
+        const attachedDay = await dayRepository
+          .createQueryBuilder('day')
+          .innerJoin('day.tasksCompleted', 'task')
+          .where('task.id = :taskId', { taskId: task.id })
+          .andWhere('day.id = :dayId', { dayId: day.id })
+          .getOne();
 
         // Expect day to be found
         expect(attachedDay).toBeDefined();
@@ -268,7 +267,7 @@ describe('Task service', () => {
       const dayRepository = manager.getRepository(Day);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       // Create day to attach to task
@@ -277,7 +276,7 @@ describe('Task service', () => {
 
       // Create test task belonging to user and having day attached
       const taskData = generateFakeTask(user);
-      taskData.completedDays.push(day);
+      taskData.completedDays = [day];
       const task = await taskRepository.save(taskData);
 
       try {
@@ -285,11 +284,12 @@ describe('Task service', () => {
         await service.toggleForDay(task, day);
 
         // Query relation for newly attached day
-        const attachedDay = await taskRepository
-          .createQueryBuilder()
-          .relation('completedDays')
-          .of(task)
-          .loadOne(day.id);
+        const attachedDay = await dayRepository
+          .createQueryBuilder('day')
+          .innerJoin('day.tasksCompleted', 'task')
+          .where('task.id = :taskId', { taskId: task.id })
+          .andWhere('day.id = :dayId', { dayId: day.id })
+          .getOne();
 
         // Expect day to not be found
         expect(attachedDay).toBeUndefined();
@@ -312,7 +312,7 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(User);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       // Create test task belonging to user
@@ -345,9 +345,6 @@ describe('Task service', () => {
 
         // Define expected daysToRepeat and startDate values
         const expectedDaysToRepeat = 0b0111100;
-        const expectedStartDate = DateTime.fromJSDate(taskDto.startDate, {
-          zone: 'utc',
-        }).toSQLDate();
 
         // Update task using service
         await service.update(task, taskDto);
@@ -362,7 +359,7 @@ describe('Task service', () => {
           'reminderTime',
           taskDto.reminderTime
         );
-        expect(updatedTask).toHaveProperty('startDate', expectedStartDate);
+        expect(updatedTask).toHaveProperty('startDate', taskDto.startDate);
         expect(updatedTask).toHaveProperty(
           'daysToRepeat',
           expectedDaysToRepeat
@@ -385,7 +382,7 @@ describe('Task service', () => {
       const userRepository = manager.getRepository(User);
 
       // Create test user
-      const userData = await generateFakeUser();
+      const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
       // Create test task belonging to user
