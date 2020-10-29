@@ -7,7 +7,7 @@ import TimestampedEntity from './TimestampedEntity';
 import User from './User';
 
 // Entity
-@Entity()
+@Entity({ name: 'task' })
 class Task extends TimestampedEntity {
   @Column({ nullable: false })
   name!: string;
@@ -24,10 +24,7 @@ class Task extends TimestampedEntity {
   @Column('smallint', { nullable: false })
   daysToRepeat!: number;
 
-  @ManyToOne(() => User, (user) => user.tasks, {
-    nullable: false,
-    cascade: ['update', 'remove', 'soft-remove', 'recover'],
-  })
+  @ManyToOne(() => User, (user) => user.tasks)
   creator!: User;
 
   @JoinTable()

@@ -1,5 +1,6 @@
 // Imports
 import 'dotenv/config';
+import 'reflect-metadata';
 
 import bootstrapDatabase from './bootstrapDatabase';
 

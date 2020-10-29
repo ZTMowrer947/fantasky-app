@@ -7,7 +7,7 @@ import Task from './Task';
 import TimestampedEntity from './TimestampedEntity';
 
 // Entity
-@Entity()
+@Entity({ name: 'user' })
 class User extends TimestampedEntity {
   @Column({ nullable: false })
   firstName!: string;

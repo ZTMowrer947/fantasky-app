@@ -31,11 +31,11 @@
       }
     ],
 
-    // Decorators
-    ["@babel/proposal-decorators", { "legacy": true }],
-
     // TypeScript metadata
     "transform-typescript-metadata",
+
+    // Decorators
+    ["@babel/proposal-decorators", { "legacy": true }],
 
     // Class properties
     ["@babel/proposal-class-properties", { "loose": true }],
