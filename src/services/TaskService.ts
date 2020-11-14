@@ -5,18 +5,19 @@ import Task from '@/entities/Task';
 import User from '@/entities/User';
 import UpsertTaskDto from '@/dto/UpsertTaskDto';
 import Day from '@/entities/Day';
+import { classToClass } from 'class-transformer';
 
 // Service
 class TaskService {
-  #repository: Repository<Task>;
+  #taskRepository: Repository<Task>;
 
   constructor(connection: Connection) {
-    this.#repository = connection.getRepository(Task);
+    this.#taskRepository = connection.getRepository(Task);
   }
 
   async findAllForUser(userId: number): Promise<Task[]> {
     // Create query for task
-    const query = this.#repository
+    const query = this.#taskRepository
       .createQueryBuilder('task')
       .leftJoin('task.creator', 'creator')
       .leftJoinAndSelect('task.completedDays', 'day')
@@ -29,7 +30,7 @@ class TaskService {
 
   async findById(id: number): Promise<Task | undefined> {
     // Create query for task
-    const query = this.#repository
+    const query = this.#taskRepository
       .createQueryBuilder('task')
       .leftJoin('task.creator', 'creator')
       .leftJoinAndSelect('task.completedDays', 'day')
@@ -70,36 +71,33 @@ class TaskService {
     task.creator = user;
 
     // Persist task to database
-    const { id } = await this.#repository.save(task);
+    const { id } = await this.#taskRepository.save(task);
 
     // Return the id of the newly created task
     return id;
   }
 
   async toggleForDay(task: Task, day: Day): Promise<void> {
+    const taskCopy = classToClass(task);
+
     // Attempt to find day in relation data for task
-    const matchingDay = await this.#repository.manager
-      .createQueryBuilder(Day, 'day')
-      .innerJoin('day.tasksCompleted', 'task')
-      .where('task.id = :taskId', { taskId: task.id })
-      .andWhere('day.id = :dayId', { dayId: day.id })
-      .getOne();
+    const taskMarkedForDay = taskCopy.completedDays.find(
+      (completedDay) => completedDay.id === day.id
+    );
 
     // If day is present,
-    if (matchingDay) {
+    if (taskMarkedForDay) {
       // Remove day from relation
-      await this.#repository
-        .createQueryBuilder()
-        .relation('completedDays')
-        .of(task)
-        .remove(day);
+      taskCopy.completedDays = taskCopy.completedDays.filter(
+        (completedDay) => completedDay.id !== day.id
+      );
+
+      await this.#taskRepository.save(taskCopy);
     } else {
       // Otherwise, add day to relation
-      await this.#repository
-        .createQueryBuilder()
-        .relation('completedDays')
-        .of(task)
-        .add(day);
+      taskCopy.completedDays.push(day);
+
+      await this.#taskRepository.save(taskCopy);
     }
   }
 
@@ -124,7 +122,7 @@ class TaskService {
       );
 
     // Preload task data
-    const updatedTask = await this.#repository.preload({
+    const updatedTask = await this.#taskRepository.preload({
       id: task.id,
       name: taskDto.name,
       description: taskDto.description,
@@ -138,12 +136,12 @@ class TaskService {
       throw new Error(`Task with id "${task.id}" does not exist`);
 
     // Persist updated task to database
-    await this.#repository.save(updatedTask);
+    await this.#taskRepository.save(updatedTask);
   }
 
   async delete(task: Task): Promise<void> {
     // Delete task
-    await this.#repository.remove(task);
+    await this.#taskRepository.remove(task);
   }
 }
 

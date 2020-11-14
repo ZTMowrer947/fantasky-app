@@ -227,8 +227,16 @@ describe('Task service', () => {
       const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
+      // Create past days to attach to task
+      const pastDay1Data = generateFakeDay('1900-01-01');
+      const pastDay2Data = generateFakeDay('1901-01-01');
+
+      const pastDay1 = await dayRepository.save(pastDay1Data);
+      const pastDay2 = await dayRepository.save(pastDay2Data);
+
       // Create test task belonging to user
       const taskData = generateFakeTask(user);
+      taskData.completedDays = [pastDay1, pastDay2];
       const task = await taskRepository.save(taskData);
 
       // Create day to attach to task
@@ -239,18 +247,26 @@ describe('Task service', () => {
         // Mark task for day
         await service.toggleForDay(task, day);
 
-        // Query relation for newly attached day
-        const attachedDay = await dayRepository
+        // Query relation for attached days
+        const days = await dayRepository
           .createQueryBuilder('day')
           .innerJoin('day.tasksCompleted', 'task')
           .where('task.id = :taskId', { taskId: task.id })
-          .andWhere('day.id = :dayId', { dayId: day.id })
-          .getOne();
+          .getMany();
 
-        // Expect day to be found
-        expect(attachedDay).toBeDefined();
+        // Map to day IDs
+        const dayIds = days.map((attachedDay) => attachedDay.id);
+
+        // Expect attached day to be found
+        expect(dayIds).toContain(day.id);
+
+        // Expect other two days to still be attached
+        expect(dayIds).toContain(pastDay1.id);
+        expect(dayIds).toContain(pastDay2.id);
       } finally {
         // Remove test data
+        await dayRepository.remove(pastDay1);
+        await dayRepository.remove(pastDay2);
         await dayRepository.remove(day);
         await taskRepository.remove(task);
         await userRepository.remove(user);
@@ -270,31 +286,44 @@ describe('Task service', () => {
       const userData = generateFakeUser();
       const user = await userRepository.save(userData);
 
-      // Create day to attach to task
+      // Create days to attach to task
+      const pastDay1Data = generateFakeDay('1900-01-01');
+      const pastDay2Data = generateFakeDay('1901-01-01');
+
+      const pastDay1 = await dayRepository.save(pastDay1Data);
+      const pastDay2 = await dayRepository.save(pastDay2Data);
       const dayData = generateFakeDay();
       const day = await dayRepository.save(dayData);
 
-      // Create test task belonging to user and having day attached
+      // Create test task belonging to user and having days attached
       const taskData = generateFakeTask(user);
-      taskData.completedDays = [day];
+      taskData.completedDays = [pastDay1, pastDay2, day];
       const task = await taskRepository.save(taskData);
 
       try {
         // Unmark task for day
         await service.toggleForDay(task, day);
 
-        // Query relation for newly attached day
-        const attachedDay = await dayRepository
+        // Query relation for attached days
+        const days = await dayRepository
           .createQueryBuilder('day')
           .innerJoin('day.tasksCompleted', 'task')
           .where('task.id = :taskId', { taskId: task.id })
-          .andWhere('day.id = :dayId', { dayId: day.id })
-          .getOne();
+          .getMany();
 
-        // Expect day to not be found
-        expect(attachedDay).toBeUndefined();
+        // Map to day IDs
+        const dayIds = days.map((attachedDay) => attachedDay.id);
+
+        // Expect unmarked day to no longer be attached
+        expect(dayIds).not.toContain(day.id);
+
+        // Expect other two days to still be attached
+        expect(dayIds).toContain(pastDay1.id);
+        expect(dayIds).toContain(pastDay2.id);
       } finally {
         // Remove test data
+        await dayRepository.remove(pastDay1);
+        await dayRepository.remove(pastDay2);
         await dayRepository.remove(day);
         await taskRepository.remove(task);
         await userRepository.remove(user);
