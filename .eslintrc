@@ -32,7 +32,10 @@
         "tsx": "never"
       }
     ],
-    "@typescript-eslint/explicit-module-boundary-types": "off"
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "class-methods-use-this": ["error", {
+      "exceptMethods": ["up", "down"]
+    }]
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],

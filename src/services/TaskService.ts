@@ -66,7 +66,6 @@ class TaskService {
     task.name = taskDto.name;
     task.description = taskDto.description;
     task.startDate = taskDto.startDate;
-    task.reminderTime = taskDto.reminderTime;
     task.daysToRepeat = daysToRepeat;
     task.creator = user;
 
@@ -127,7 +126,6 @@ class TaskService {
       name: taskDto.name,
       description: taskDto.description,
       startDate: taskDto.startDate,
-      reminderTime: taskDto.reminderTime,
       daysToRepeat,
     });
 

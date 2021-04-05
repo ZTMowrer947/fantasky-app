@@ -28,9 +28,9 @@ const tlsOptions = useTls && {
 module.exports = [
   {
     name: 'development',
-    type: 'postgres',
+    type: 'mysql',
     host: process.env.DEV_DB_HOST,
-    port: Number.parseInt(process.env.DEV_DB_PORT || '5432', 10),
+    port: Number.parseInt(process.env.DEV_DB_PORT || '3306', 10),
     username: process.env.DEV_DB_USER,
     password: process.env.DEV_DB_PASS,
     database: process.env.DEV_DB_NAME,
@@ -51,9 +51,9 @@ module.exports = [
   },
   {
     name: 'test',
-    type: 'postgres',
+    type: 'mysql',
     host: process.env.TEST_DB_HOST,
-    port: Number.parseInt(process.env.TEST_DB_PORT || '5432', 10),
+    port: Number.parseInt(process.env.TEST_DB_PORT || '3306', 10),
     username: process.env.TEST_DB_USER,
     password: process.env.TEST_DB_PASS,
     database: process.env.TEST_DB_NAME,
@@ -62,9 +62,9 @@ module.exports = [
   },
   {
     name: 'production',
-    type: 'postgres',
+    type: 'mysql',
     host: process.env.PROD_DB_HOST,
-    port: Number.parseInt(process.env.PROD_DB_PORT || '5432', 10),
+    port: Number.parseInt(process.env.PROD_DB_PORT || '3306', 10),
     username: process.env.PROD_DB_USER,
     password: process.env.PROD_DB_PASS,
     database: process.env.PROD_DB_NAME,

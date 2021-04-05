@@ -11,7 +11,7 @@ beforeAll(async () => {
   const connection = await bootstrapDatabase();
 
   // Drop and synchronize entity tables
-  await connection.synchronize();
+  await connection.synchronize(false);
 });
 
 // Test teardown

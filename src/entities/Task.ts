@@ -15,11 +15,8 @@ class Task extends TimestampedEntity {
   @Column('text', { nullable: true })
   description?: string;
 
-  @Column('date', { nullable: false, default: () => 'CURRENT_DATE' })
+  @Column('date', { nullable: false })
   startDate!: string;
-
-  @Column('time with time zone', { nullable: true })
-  reminderTime?: string;
 
   @Column('smallint', { nullable: false })
   daysToRepeat!: number;

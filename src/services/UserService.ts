@@ -50,7 +50,6 @@ class UserService {
     user.lastName = userDto.lastName;
     user.emailAddress = userDto.emailAddress;
     user.password = userDto.password;
-    user.dob = userDto.dob;
 
     // Persist user to database
     await this.#repository.save(user);
@@ -64,7 +63,6 @@ class UserService {
       lastName: updateDto.lastName,
       emailAddress: updateDto.emailAddress,
       password: updateDto.password,
-      dob: updateDto.dob,
     });
 
     // If user does not exist, throw error

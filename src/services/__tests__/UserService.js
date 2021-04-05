@@ -130,7 +130,6 @@ describe('User service', () => {
         expect(actualUser).toHaveProperty('firstName', user.firstName);
         expect(actualUser).toHaveProperty('lastName', user.lastName);
         expect(actualUser).toHaveProperty('emailAddress', user.emailAddress);
-        expect(actualUser).toHaveProperty('dob', user.dob);
 
         // Expect timestamp and password fields to be hidden
         expect(actualUser).not.toHaveProperty('createdAt');
@@ -193,7 +192,6 @@ describe('User service', () => {
         await expect(
           argon2.verify(createdUser.password, userDto.password)
         ).resolves.toBe(true);
-        expect(createdUser).toHaveProperty('dob', userDto.dob);
       } finally {
         // Delete created user
         await repository.remove(createdUser);
@@ -231,7 +229,6 @@ describe('User service', () => {
         // Expect user to match update data
         expect(updatedUser).toHaveProperty('firstName', updateDto.firstName);
         expect(updatedUser).toHaveProperty('lastName', updateDto.lastName);
-        expect(updatedUser).toHaveProperty('dob', updateDto.dob);
         expect(updatedUser).toHaveProperty(
           'emailAddress',
           updateDto.emailAddress

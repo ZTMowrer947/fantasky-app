@@ -21,9 +21,6 @@ class User extends TimestampedEntity {
   @Column({ nullable: false, select: false })
   password!: string;
 
-  @Column('date', { nullable: false })
-  dob!: string;
-
   @OneToMany(() => Task, (task) => task.creator)
   tasks!: Task[];
 

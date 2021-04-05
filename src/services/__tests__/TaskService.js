@@ -189,10 +189,6 @@ describe('Task service', () => {
           'description',
           taskDto.description
         );
-        expect(retrievedTask).toHaveProperty(
-          'reminderTime',
-          taskDto.reminderTime
-        );
         expect(retrievedTask).toHaveProperty('startDate', taskDto.startDate);
         expect(retrievedTask).toHaveProperty(
           'daysToRepeat',
@@ -384,10 +380,6 @@ describe('Task service', () => {
         // Expect task to match update data
         expect(updatedTask).toHaveProperty('name', taskDto.name);
         expect(updatedTask).toHaveProperty('description', taskDto.description);
-        expect(updatedTask).toHaveProperty(
-          'reminderTime',
-          taskDto.reminderTime
-        );
         expect(updatedTask).toHaveProperty('startDate', taskDto.startDate);
         expect(updatedTask).toHaveProperty(
           'daysToRepeat',
