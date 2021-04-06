@@ -17,9 +17,6 @@ class UpsertUserDto implements Partial<User> {
 
   @Expose()
   password!: string;
-
-  @Expose()
-  dob!: string;
 }
 
 // Exports
