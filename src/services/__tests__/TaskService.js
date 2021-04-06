@@ -4,7 +4,6 @@ import { getConnection } from 'typeorm';
 import { generateFakeDay } from '@/__testutils__/day';
 import { generateFakeTask, generateFakeTaskDto } from '@/__testutils__/tasks';
 import { generateFakeUser } from '@/__testutils__/users';
-import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
 import Day from '@/entities/Day';
 import Task from '@/entities/Task';
 import User from '@/entities/User';
@@ -13,8 +12,7 @@ import TaskService from '../TaskService';
 // Test Setup
 function setupService() {
   // Retrieve database connection
-  const connectionName = selectDatabaseEnvironment();
-  const connection = getConnection(connectionName);
+  const connection = getConnection();
 
   // Get entity manager
   const { manager } = connection;

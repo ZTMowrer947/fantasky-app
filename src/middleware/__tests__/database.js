@@ -3,7 +3,6 @@ import httpMocks from 'node-mocks-http';
 import { getConnection } from 'typeorm';
 
 import database from '../database';
-import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
 
 // Setup function
 function setup(req, res) {
@@ -38,9 +37,6 @@ describe('database middleware', () => {
     await expect(invoke()).resolves.not.toThrow();
 
     // Expect db property to be set on request
-    expect(req).toHaveProperty(
-      'db',
-      getConnection(selectDatabaseEnvironment())
-    );
+    expect(req).toHaveProperty('db', getConnection());
   });
 });

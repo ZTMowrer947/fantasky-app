@@ -2,7 +2,6 @@
 import argon2 from 'argon2';
 import { getConnection } from 'typeorm';
 
-import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
 import User from '@/entities/User';
 import UserService from '@/services/UserService';
 import { generateFakeUser, generateFakeUserDto } from '@/__testutils__/users';
@@ -10,8 +9,7 @@ import { generateFakeUser, generateFakeUserDto } from '@/__testutils__/users';
 // Test Setup
 function setupService() {
   // Retrieve database connection
-  const connectionName = selectDatabaseEnvironment();
-  const connection = getConnection(connectionName);
+  const connection = getConnection();
 
   // Get entity manager
   const { manager } = connection;

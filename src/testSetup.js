@@ -1,9 +1,7 @@
 // Imports
 import { getConnection } from 'typeorm';
 
-import bootstrapDatabase, {
-  selectDatabaseEnvironment,
-} from './bootstrapDatabase';
+import bootstrapDatabase from './bootstrapDatabase';
 
 // Test setup
 beforeAll(async () => {
@@ -17,8 +15,7 @@ beforeAll(async () => {
 // Test teardown
 afterAll(async () => {
   // Get connection name and instance
-  const name = selectDatabaseEnvironment();
-  const connection = getConnection(name);
+  const connection = getConnection();
 
   // Close connection
   await connection.close();
