@@ -1,0 +1,31 @@
+{
+  "name": "fantasky",
+  "version": "1.0.0",
+  "description": "This application was created by the Coding Club Task Force of the [West Virginia Coding Club](https://wvcoding.org) for the 2020 Congressional App Challenge, representing the 2nd district of West Virginia.",
+  "private": true,
+  "scripts": {
+    "start": "next start",
+    "build": "next build",
+    "dev": "next dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZTMowrer947/fantasky-app.git"
+  },
+  "author": "ZTMowrer947",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZTMowrer947/fantasky-app/issues"
+  },
+  "homepage": "https://github.com/ZTMowrer947/fantasky-app#readme",
+  "dependencies": {
+    "next": "^10.1.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.3",
+    "typescript": "^4.2.3"
+  }
+}
