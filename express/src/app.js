@@ -10,9 +10,9 @@ import nunjucks from 'nunjucks';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
+import { getConnection } from 'typeorm';
 
 // import api from './api';
-import { getDatabaseConnection } from './bootstrapDatabase';
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import errorHandler from './middleware/errorHandler';
 import frontendRoutes from './routes';
@@ -101,7 +101,7 @@ passport.use(
     },
     async (emailAddress, password, done) => {
       // Create database connection
-      const connection = getDatabaseConnection();
+      const connection = getConnection();
 
       try {
         // Instantiate user service
@@ -142,7 +142,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (emailAddress, done) => {
   // Create database connection
-  const connection = getDatabaseConnection();
+  const connection = getConnection();
 
   try {
     // Instantiate user service

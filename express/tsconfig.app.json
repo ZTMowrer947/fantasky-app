@@ -3,8 +3,11 @@
   "compilerOptions": {
     "allowJs": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["./src/**/*"],
-  "exclude": ["./src/**/__tests__/**/*", "./src/__testutils__/**/*", "./src/testSetup.js"]
+  "exclude": ["./src/**/__tests__/**/*",
+    "./src/__testutils__/**/*",
+    "./src/testSetup.js"
+  ]
 }

@@ -4,11 +4,11 @@ import createError from 'http-errors';
 import passport from 'passport';
 import { BasicStrategy } from 'passport-http';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
+import { getConnection } from 'typeorm';
 
 import apiErrorHandler from './middleware/apiErrorHandler';
 import tokenRoutes from './routes/token';
 import userRoutes from './routes/users';
-import { getDatabaseConnection } from '../bootstrapDatabase';
 import { jwtSecret } from '../secrets';
 import TokenService from '../services/TokenService';
 import UserService from '../services/UserService';
@@ -27,7 +27,7 @@ api.use(passport.initialize());
 passport.use(
   new BasicStrategy(async (emailAddress, password, done) => {
     // Create database connection
-    const connection = getDatabaseConnection();
+    const connection = getConnection();
 
     try {
       // Instantiate user service
@@ -67,7 +67,7 @@ passport.use(
     },
     async (payload, done) => {
       // Create database connection
-      const connection = getDatabaseConnection();
+      const connection = getConnection();
 
       try {
         // Instantiate token and user services
