@@ -39,7 +39,8 @@
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": ["error", {
       "extensions": [".js", ".jsx", ".tsx"]
-    }]
+    }],
+    "react/prop-types": "off"
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
