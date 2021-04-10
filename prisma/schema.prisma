@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 Int       @id @default(autoincrement())
+  compoundId         String    @unique @map("compound_id") @db.VarChar(255)
+  userId             Int       @map("user_id")
+  providerType       String    @map("provider_type") @db.VarChar(255)
+  providerId         String    @map("provider_id") @db.VarChar(255)
+  providerAccountId  String    @map("provider_account_id") @db.VarChar(255)
+  refreshToken       String?   @map("refresh_token") @db.Text
+  accessToken        String?   @map("access_token") @db.Text
+  accessTokenExpires DateTime? @map("access_token_expires") @db.Timestamp(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@index([providerAccountId], name: "providerAccountId")
+  @@index([providerId], name: "providerId")
+  @@index([userId], name: "userId")
+  @@map("accounts")
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  expires      DateTime @default(now()) @db.Timestamp(6)
+  sessionToken String   @unique @map("session_token") @db.VarChar(255)
+  accessToken  String   @unique @map("access_token") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("sessions")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(255)
+  email         String?   @unique @db.VarChar(255)
+  image         String?   @db.VarChar(255)
+  emailVerified DateTime? @map("email_verified") @db.Timestamp(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
+  createdTasks  Task[]    @relation("tasksTousers")
+
+  @@map("users")
+}
+
+model VerificationRequest {
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(255)
+  token      String   @unique @db.VarChar(255)
+  expires    DateTime @default(now()) @db.Timestamp(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("verification_requests")
+}
+
+model Day {
+  id             Int          @id @default(autoincrement())
+  date           DateTime     @unique @db.Date
+  tasksPerformed TaskDay[]
+
+  @@map("days")
+}
+
+model Task {
+  id              Int          @id @default(autoincrement())
+  name            String       @db.VarChar(255)
+  description     String?      @db.Text
+  startDate       DateTime     @map("start_date") @db.Date
+  onSundays       Boolean      @map("on_sundays")
+  onMondays       Boolean      @map("on_mondays")
+  onTuesdays      Boolean      @map("on_tuesdays")
+  onWednesdays    Boolean      @map("on_wednesdays")
+  onThursdays     Boolean      @map("on_thursdays")
+  onFridays       Boolean      @map("on_fridays")
+  onSaturdays     Boolean      @map("on_saturdays")
+  creatorId       Int          @map("creator_id")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamp(6)
+  creator         User         @relation("tasksTousers", fields: [creatorId], references: [id])
+  performedOnDays TaskDay[]
+
+  @@index([creatorId], name: "creator_id")
+  @@map("tasks")
+}
+
+model TaskDay {
+  taskId  Int  @map("task_id")
+  dayId   Int  @map("day_id")
+  Day     Day  @relation(fields: [dayId], references: [id])
+  Task    Task @relation(fields: [taskId], references: [id])
+
+  @@id([taskId, dayId])
+  @@index([dayId], name: "dayId")
+  @@index([taskId], name: "taskId")
+  @@map("tasks_days")
+}

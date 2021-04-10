@@ -1,5 +1,9 @@
+import { PrismaClient } from '@prisma/client';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import Providers from 'next-auth/providers';
+import Adapters from 'next-auth/adapters';
+
+const prisma = new PrismaClient();
 
 const options: NextAuthOptions = {
   providers: [
@@ -16,11 +20,7 @@ const options: NextAuthOptions = {
       from: process.env.EMAIL_FROM,
     }),
   ],
-  database: {
-    type: 'mysql',
-    url: process.env.DATABASE_URL,
-    synchronize: true,
-  },
+  adapter: Adapters.Prisma.Adapter({ prisma }),
   secret: process.env.SESSION_SECRET,
 };
 
