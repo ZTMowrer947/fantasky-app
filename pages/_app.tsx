@@ -4,6 +4,8 @@ import { createGlobalStyle } from 'styled-components';
 import { AppProps } from 'next/app';
 import { Provider } from 'next-auth/client';
 
+import 'bootstrap/dist/css/bootstrap.css';
+
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
