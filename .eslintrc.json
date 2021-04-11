@@ -5,6 +5,7 @@
     "sourceType": "module",
     "ecmaVersion": 2019
   },
+  "plugins": ["simple-import-sort"],
   "extends": [
     "airbnb",
     "airbnb/hooks",
@@ -40,7 +41,11 @@
     "react/jsx-filename-extension": ["error", {
       "extensions": [".js", ".jsx", ".tsx"]
     }],
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "import/order": "off",
+    "sort-imports": "off",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
