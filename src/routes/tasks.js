@@ -14,6 +14,7 @@ import {
   deserializeDaysToRepeat,
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
+import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import csrf from '@/middleware/csrf';
 import database from '@/middleware/database';
@@ -148,82 +149,41 @@ taskRoutes
   .get(
     ensureLoggedIn('/login'),
     csrf,
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
+      // Instantiate prisma client
+      const prisma = new PrismaClient();
 
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
-
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
-        // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
-      }
-
-      const daysOfWeek = [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-      ];
-      const weekDays = daysOfWeek.slice(1, 6);
-      const weekends = [daysOfWeek[0], daysOfWeek[6]];
-
-      // Convert binary day representation into boolean values
-      const [activeDays] = Array.from({ length: 7 }).reduce(
-        ([daysActive, daysBinary]) => {
-          const dayIsActive = daysBinary % 2 !== 0;
-          const quotient = Math.trunc(daysBinary / 2);
-
-          return [[dayIsActive, ...daysActive], quotient];
-        },
-        [[], task.daysToRepeat]
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
       );
 
-      // Convert boolean values into string representations
-      const activeDayStrings = activeDays
-        .map((dayActive, index) => {
-          return dayActive ? daysOfWeek[index] : dayActive;
-        })
-        .filter((day) => day);
+      await prisma.$disconnect();
 
-      // Join days together
-      let activeDayString = 'Every '.concat(activeDayStrings.join(', '));
-
-      // Replace with special text if days are the whole week, the weekdays, or the weekends
-      if (activeDayStrings.length === activeDays.length) {
-        activeDayString = 'Every day';
-      } else if (
-        activeDayStrings.length === 5 &&
-        activeDayString === weekDays.join(', ')
-      ) {
-        activeDayString = 'Every weekday';
-      } else if (
-        activeDayStrings.length === 2 &&
-        activeDayString === weekends.join(', ')
-      ) {
-        activeDayString = 'Every weekend';
+      // If task was not found,
+      if (!task) {
+        // Throw 404 error
+        throw createError(404, 'The requested task cannot be found.');
       }
+
+      const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
+
+      // Calculate active days
+      const activeDayString = formatDaysToRepeat(activeDays);
 
       const streak = [];
 
-      for (let i = task.completedDays.length - 1; i >= 0; i -= 1) {
+      for (let i = task.tasksToDays.length - 1; i >= 0; i -= 1) {
         // Get day being processed
-        const day = task.completedDays[i];
+        const { day } = task.tasksToDays[i];
 
         // Parse date as ISO date string
-        const parsedDate = DateTime.fromISO(day.date, { zone: 'utc' });
+        const parsedDate = DateTime.fromJSDate(day.date, { zone: 'utc' });
 
         // If this is the last element in the array,
-        if (i === task.completedDays.length - 1) {
+        if (i === task.tasksToDays.length - 1) {
           // Prepend to streak
           streak.unshift(parsedDate);
         } else {
@@ -231,10 +191,10 @@ taskRoutes
           const dayAfterParsedDate = parsedDate.plus({ days: 1 });
 
           // Get day of element immediately following this one
-          const nextDay = task.completedDays[i + 1];
+          const nextDay = task.tasksToDays[i + 1].day;
 
           // Parse date of that day
-          const nextDate = DateTime.fromISO(nextDay.date, { zone: 'utc' });
+          const nextDate = DateTime.fromJSDate(nextDay.date, { zone: 'utc' });
 
           // If the dates match,
           if (nextDate.equals(dayAfterParsedDate)) {
