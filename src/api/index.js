@@ -5,13 +5,13 @@ import passport from 'passport';
 import { BasicStrategy } from 'passport-http';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 
-import apiErrorHandler from './middleware/apiErrorHandler';
-import tokenRoutes from './routes/token';
-import userRoutes from './routes/users';
 import { getDatabaseConnection } from '../bootstrapDatabase';
 import { jwtSecret } from '../secrets';
 import TokenService from '../services/TokenService';
 import UserService from '../services/UserService';
+import apiErrorHandler from './middleware/apiErrorHandler';
+import tokenRoutes from './routes/token';
+import userRoutes from './routes/users';
 
 // Express sub-app setup
 const api = express();

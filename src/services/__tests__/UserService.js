@@ -2,10 +2,10 @@
 import argon2 from 'argon2';
 import { getConnection } from 'typeorm';
 
+import { generateFakeUser, generateFakeUserDto } from '@/__testutils__/users';
 import { selectDatabaseEnvironment } from '@/bootstrapDatabase';
 import User from '@/entities/User';
 import UserService from '@/services/UserService';
-import { generateFakeUser, generateFakeUserDto } from '@/__testutils__/users';
 
 // Test Setup
 function setupService() {

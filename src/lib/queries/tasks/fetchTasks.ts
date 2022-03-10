@@ -29,9 +29,7 @@ const taskPreview = Prisma.validator<Prisma.TaskSelect>()({
 });
 
 // Query
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function fetchTasks(prisma: PrismaClient, creatorId: number) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
   return prisma.task.findMany({
     select: taskPreview,
     where: creatorHasId(creatorId),

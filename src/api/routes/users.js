@@ -6,9 +6,9 @@ import passport from 'passport';
 
 import User from '../../entities/User';
 import database from '../../middleware/database';
-import validateBody from '../middleware/validateBody';
 import UserService from '../../services/UserService';
 import { apiUserValidationSchema } from '../../validation/user';
+import validateBody from '../middleware/validateBody';
 
 // Router setup
 const userRoutes = Router();

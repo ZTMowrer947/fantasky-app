@@ -2,8 +2,8 @@
 import argon2 from 'argon2';
 import { Connection, Repository } from 'typeorm';
 
-import User from '@/entities/User';
 import UpsertUserDto from '@/dto/UpsertUserDto';
+import User from '@/entities/User';
 
 // Service
 class UserService {

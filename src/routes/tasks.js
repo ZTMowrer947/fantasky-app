@@ -1,7 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
 import { PrismaClient } from '@prisma/client';
-import Day from '@/entities/Day';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
@@ -10,7 +9,9 @@ import createError from 'http-errors';
 import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
+import Day from '@/entities/Day';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
+
 import csrf from '../middleware/csrf';
 import database from '../middleware/database';
 import TaskService from '../services/TaskService';

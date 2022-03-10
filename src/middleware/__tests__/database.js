@@ -2,8 +2,8 @@
 import httpMocks from 'node-mocks-http';
 import { getConnection } from 'typeorm';
 
-import database from '../database';
 import { selectDatabaseEnvironment } from '../../bootstrapDatabase';
+import database from '../database';
 
 // Setup function
 function setup(req, res) {

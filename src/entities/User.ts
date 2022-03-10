@@ -2,8 +2,8 @@
 // Imports
 import argon2 from 'argon2';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
-import Task from './Task';
 
+import Task from './Task';
 import TimestampedEntity from './TimestampedEntity';
 
 // Entity

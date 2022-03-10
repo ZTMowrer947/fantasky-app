@@ -1,11 +1,11 @@
 // Imports
+import { classToClass } from 'class-transformer';
 import { Connection, Repository } from 'typeorm';
 
-import Task from '@/entities/Task';
-import User from '@/entities/User';
 import UpsertTaskDto from '@/dto/UpsertTaskDto';
 import Day from '@/entities/Day';
-import { classToClass } from 'class-transformer';
+import Task from '@/entities/Task';
+import User from '@/entities/User';
 
 // Service
 class TaskService {
