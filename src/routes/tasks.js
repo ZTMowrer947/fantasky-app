@@ -15,11 +15,10 @@ import {
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
-
-import csrf from '../middleware/csrf';
-import database from '../middleware/database';
-import TaskService from '../services/TaskService';
-import { taskValidationSchema } from '../validation/task';
+import csrf from '@/middleware/csrf';
+import database from '@/middleware/database';
+import TaskService from '@/services/TaskService';
+import { taskValidationSchema } from '@/validation/task';
 
 // Express router setup
 const taskRoutes = Router();
@@ -40,7 +39,7 @@ taskRoutes
       await prisma.$disconnect();
 
       // Map tasks into view model data
-      const prismaTaskViewData = prismaTasks.map((task) => {
+      res.locals.tasks = prismaTasks.map((task) => {
         const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
 
         // Calculate active days
@@ -52,9 +51,6 @@ taskRoutes
           activeDays: activeDayString,
         };
       });
-
-      // Attach view data to locals
-      res.locals.tasks = prismaTaskViewData;
 
       // Render task listing for user
       res.render('tasks/index');
@@ -141,7 +137,7 @@ taskRoutes
       // Create task
       const id = await taskService.create(req.user, req.body);
 
-      // Redirect to details of newly created task
+      // Redirect to detail page of newly created task
       res.redirect(`/tasks/${id}`);
     })
   );
@@ -160,15 +156,13 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       const daysOfWeek = [
@@ -261,13 +255,10 @@ taskRoutes
             )}`
           : 'No Streak';
 
-      // Get current date
-      const today = DateTime.fromISO(DateTime.utc().toISODate(), {
+      // Declare variable for Saturday in week that today falls into
+      let nextSaturday = DateTime.fromISO(DateTime.utc().toISODate(), {
         zone: 'utc',
       });
-
-      // Declare variable for Saturday in week that today falls into
-      let nextSaturday = today;
 
       while (nextSaturday.weekday !== 6) {
         nextSaturday = nextSaturday.plus({ days: 1 });
@@ -327,15 +318,13 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       // Get current date in ISO date format
@@ -375,15 +364,13 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       // Convert binary day representation into boolean values
@@ -488,21 +475,19 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       // Update task
       await service.update(task, req.body);
 
-      // Redirect to details for task
+      // Redirect to detail page for task
       res.redirect(`/tasks/${task.id}`);
     })
   );
@@ -521,15 +506,13 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       // Attach needed task data for view
@@ -556,15 +539,13 @@ taskRoutes
       // Retrieve task by id
       const task = await service.findById(req.params.id);
 
-      // If task was not found or is not owned by the logged in user,
+      // If task was not found or is not owned by the logged-in user,
       if (task?.creator?.id !== req.user.id) {
         // Throw 404 error
-        const error = createError(
+        throw createError(
           404,
           'The requested task either does not exist or you do not have permission to access it.'
         );
-
-        throw error;
       }
 
       // Delete task
