@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
+import { PrismaClient } from '@prisma/client';
 import Day from '@/entities/Day';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { Router } from 'express';
@@ -9,6 +10,7 @@ import createError from 'http-errors';
 import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
+import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import csrf from '../middleware/csrf';
 import database from '../middleware/database';
 import TaskService from '../services/TaskService';
@@ -22,13 +24,15 @@ taskRoutes
   .route('/') // /tasks
   .get(
     ensureLoggedIn('/login'),
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
+      const prisma = new PrismaClient();
 
-      // Retrieve tasks for user
-      const tasks = await service.findAllForUser(req.user.id);
+      const prismaTasks = await fetchTasks(
+        prisma,
+        Number.parseInt(req.user.id, 10)
+      );
+
+      await prisma.$disconnect();
 
       const daysOfWeek = [
         'Sunday',
@@ -43,7 +47,7 @@ taskRoutes
       const weekends = [daysOfWeek[0], daysOfWeek[6]];
 
       // Map tasks into view model data
-      const taskViewData = tasks.map((task) => {
+      const prismaTaskViewData = prismaTasks.map((task) => {
         // Convert binary day representation into boolean values
         const [activeDays] = Array.from({ length: 7 }).reduce(
           ([daysActive, daysBinary]) => {
@@ -90,15 +94,15 @@ taskRoutes
 
         const streak = [];
 
-        for (let i = task.completedDays.length - 1; i >= 0; i -= 1) {
+        for (let i = task.tasksToDays.length - 1; i >= 0; i -= 1) {
           // Get day being processed
-          const day = task.completedDays[i];
+          const { day } = task.tasksToDays[i];
 
           // Parse date as ISO date string
-          const parsedDate = DateTime.fromISO(day.date, { zone: 'utc' });
+          const parsedDate = DateTime.fromJSDate(day.date, { zone: 'utc' });
 
           // If this is the last element in the array,
-          if (i === task.completedDays.length - 1) {
+          if (i === task.tasksToDays.length - 1) {
             // Prepend to streak
             streak.unshift(parsedDate);
           } else {
@@ -106,10 +110,10 @@ taskRoutes
             const dayAfterParsedDate = parsedDate.plus({ days: 1 });
 
             // Get day of element immediately following this one
-            const nextDay = task.completedDays[i + 1];
+            const nextDay = task.tasksToDays[i + 1].day;
 
             // Parse date of that day
-            const nextDate = DateTime.fromISO(nextDay.date, { zone: 'utc' });
+            const nextDate = DateTime.fromJSDate(nextDay.date, { zone: 'utc' });
 
             // If the dates match,
             if (nextDate.equals(dayAfterParsedDate)) {
@@ -139,7 +143,7 @@ taskRoutes
       });
 
       // Attach view data to locals
-      res.locals.tasks = taskViewData;
+      res.locals.tasks = prismaTaskViewData;
 
       // Render task listing for user
       res.render('tasks/index');
