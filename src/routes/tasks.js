@@ -46,53 +46,10 @@ taskRoutes
         // Calculate active days
         const activeDayString = formatDaysToRepeat(activeDays);
 
-        const streak = [];
-
-        for (let i = task.tasksToDays.length - 1; i >= 0; i -= 1) {
-          // Get day being processed
-          const { day } = task.tasksToDays[i];
-
-          // Parse date as ISO date string
-          const parsedDate = DateTime.fromJSDate(day.date, { zone: 'utc' });
-
-          // If this is the last element in the array,
-          if (i === task.tasksToDays.length - 1) {
-            // Prepend to streak
-            streak.unshift(parsedDate);
-          } else {
-            // Otherwise, determine date of next day
-            const dayAfterParsedDate = parsedDate.plus({ days: 1 });
-
-            // Get day of element immediately following this one
-            const nextDay = task.tasksToDays[i + 1].day;
-
-            // Parse date of that day
-            const nextDate = DateTime.fromJSDate(nextDay.date, { zone: 'utc' });
-
-            // If the dates match,
-            if (nextDate.equals(dayAfterParsedDate)) {
-              // Prepend current date to streak
-              streak.unshift(parsedDate);
-            } else {
-              // Otherwise, stop here
-              break;
-            }
-          }
-        }
-
-        // Determine streak text
-        const streakText =
-          streak.length > 0
-            ? `Streak ongoing since ${streak[0].toLocaleString(
-                DateTime.DATE_SHORT
-              )}`
-            : 'No Streak';
-
         return {
           id: task.id,
           name: task.name,
           activeDays: activeDayString,
-          streak: streakText,
         };
       });
 
