@@ -9,13 +9,13 @@ import createError from 'http-errors';
 import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
-import Day from '@/entities/Day';
 import {
   deserializeDaysToRepeat,
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
 import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
+import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import database from '@/middleware/database';
 import TaskService from '@/services/TaskService';
@@ -270,40 +270,34 @@ taskRoutes
   .post(
     ensureLoggedIn('/login'),
     csrf,
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
+      const prisma = new PrismaClient();
 
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
+      );
 
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
+      // If task was not found,
+      if (!task) {
         // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
+        throw createError(404, 'The requested task cannot be found.');
       }
 
-      // Get current date in ISO date format
-      const today = DateTime.utc().toISODate();
-
-      // Query for day with current date
-      let day = await req.db.getRepository(Day).findOne({
-        date: today,
-      });
-
-      // If day was not found, create it
-      if (!day) {
-        day = await req.db.getRepository(Day).save({
-          date: today,
-        });
-      }
+      // Get current date
+      const today = DateTime.utc().startOf('day').toJSDate();
 
       // Toggle association between day and date
-      await service.toggleForDay(task, day);
+      await toggleActivityForDay(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        task,
+        today
+      );
+
+      await prisma.$disconnect();
 
       // Re-render task details
       res.redirect(`/tasks/${task.id}`);

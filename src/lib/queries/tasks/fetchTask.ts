@@ -34,6 +34,10 @@ const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
   },
 });
 
+export type DetailedTask = Prisma.TaskGetPayload<{
+  select: typeof detailedTask;
+}>;
+
 export default function fetchTask(
   prisma: PrismaClient,
   creatorId: number,
