@@ -10,6 +10,10 @@ import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
 import Day from '@/entities/Day';
+import {
+  deserializeDaysToRepeat,
+  formatDaysToRepeat,
+} from '@/lib/helpers/days';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 
 import csrf from '../middleware/csrf';
@@ -35,63 +39,12 @@ taskRoutes
 
       await prisma.$disconnect();
 
-      const daysOfWeek = [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-      ];
-      const weekDays = daysOfWeek.slice(1, 6);
-      const weekends = [daysOfWeek[0], daysOfWeek[6]];
-
       // Map tasks into view model data
       const prismaTaskViewData = prismaTasks.map((task) => {
-        // Convert binary day representation into boolean values
-        const [activeDays] = Array.from({ length: 7 }).reduce(
-          ([daysActive, daysBinary]) => {
-            const dayIsActive = daysBinary % 2 !== 0;
-            const quotient = Math.trunc(daysBinary / 2);
+        const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
 
-            return [[dayIsActive, ...daysActive], quotient];
-          },
-          [[], task.daysToRepeat]
-        );
-
-        // Convert boolean values into string representations
-        const activeDayStrings = activeDays
-          .map((dayActive, index) => {
-            return dayActive ? daysOfWeek[index] : dayActive;
-          })
-          .filter((day) => day);
-
-        // Join days together
-        let activeDayString = 'Every '.concat(activeDayStrings.join(', '));
-
-        // Replace with special text if days are the whole week, the weekdays, or the weekends
-        if (activeDayStrings.length === activeDays.length) {
-          activeDayString = 'Every day';
-        } else if (
-          activeDayStrings.length === 5 &&
-          activeDayString === weekDays.join(', ')
-        ) {
-          activeDayString = 'Every weekday';
-        } else if (
-          activeDayStrings.length === 2 &&
-          activeDayString === weekends.join(', ')
-        ) {
-          activeDayString = 'Every weekend';
-        } else if (activeDayStrings.length > 3) {
-          const truncatedActiveDayStrings = activeDayStrings.map((day) =>
-            day.substring(0, 3)
-          );
-
-          activeDayString = 'Every '.concat(
-            truncatedActiveDayStrings.join(', ')
-          );
-        }
+        // Calculate active days
+        const activeDayString = formatDaysToRepeat(activeDays);
 
         const streak = [];
 
