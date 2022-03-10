@@ -10,7 +10,8 @@
     "lint": "eslint . --ext .js,.ts",
     "test": "jest",
     "typecheck": "tsc -noEmit -p tsconfig.app.json",
-    "typecheck:watch": "tsc -noEmit -w -p tsconfig.app.json"
+    "typecheck:watch": "tsc -noEmit -w -p tsconfig.app.json",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -105,7 +106,7 @@
     "gulp-babel": "^8.0.0",
     "gulp-terser": "^1.2.0",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "husky": "^4.2.5",
+    "husky": ">=6",
     "isomorphic-unfetch": "^3.0.0",
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
@@ -116,11 +117,6 @@
     "test-listen": "^1.1.0",
     "ts-jest": "^26.1.2",
     "typescript": "~3.9.6"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",
