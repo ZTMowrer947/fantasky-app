@@ -1,27 +1,21 @@
 {
   "presets": [
-    // Environment
     [
       "@babel/env",
       {
-        // Use core-js version 3
         "corejs": 3,
 
-        // Add polyfills based on usage
         "useBuiltIns": "usage",
 
-        // Target current node version
         "targets": {
           "node": true
         }
       }
     ],
 
-    // TypeScript
     "@babel/typescript"
   ],
   "plugins": [
-    // Resolve TypeScript module aliases
     [
       "module-resolver",
       {
@@ -31,22 +25,16 @@
       }
     ],
 
-    // TypeScript metadata
     "transform-typescript-metadata",
 
-    // Decorators
     ["@babel/proposal-decorators", { "legacy": true }],
 
-    // Class properties
     ["@babel/proposal-class-properties", { "loose": true }],
 
-    // Object spread ({ ...a }) proposal
     "@babel/proposal-object-rest-spread",
 
-    // Optional chaining (a?.b) proposal
     "@babel/proposal-optional-chaining",
 
-    // Nullish coalescing operator (a ?? b) proposal
     "@babel/proposal-nullish-coalescing-operator"
   ]
 }
