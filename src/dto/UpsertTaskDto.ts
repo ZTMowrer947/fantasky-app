@@ -1,11 +1,9 @@
 // Imports
 import { Exclude, Expose } from 'class-transformer';
 
-import Task from '@/entities/Task';
-
 // Data transfer object
 @Exclude()
-class UpsertTaskDto implements Partial<Task> {
+class UpsertTaskDto {
   @Expose()
   name!: string;
 

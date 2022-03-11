@@ -1,11 +1,9 @@
 // Imports
 import { Exclude, Expose } from 'class-transformer';
 
-import User from '@/entities/User';
-
 // Data transfer object
 @Exclude()
-class UpsertUserDto implements Partial<User> {
+class UpsertUserDto {
   @Expose()
   firstName!: string;
 
