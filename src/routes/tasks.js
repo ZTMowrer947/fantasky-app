@@ -129,7 +129,7 @@ taskRoutes
     },
     asyncHandler(async (req, res) => {
       // Create task
-      const id = await createTask(
+      const { id } = await createTask(
         prisma,
         Number.parseInt(req.user.id, 10),
         req.body
