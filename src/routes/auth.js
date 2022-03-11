@@ -3,7 +3,6 @@ import { plainToClass } from 'class-transformer';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { body, checkSchema, validationResult } from 'express-validator';
-import { DateTime } from 'luxon';
 import passport from 'passport';
 
 import UpsertUserDto from '@/dto/UpsertUserDto';
@@ -70,9 +69,6 @@ authRoutes
         // Attach form values from previous submission, excluding password fields
         res.locals.values = {
           ...req.body,
-          dob: req.body?.dob
-            ? DateTime.fromJSDate(req.body.dob, { zone: 'utc' }).toISODate()
-            : undefined,
           password: '',
           confirmPassword: '',
         };
@@ -90,9 +86,6 @@ authRoutes
     asyncHandler(async (req, res, next) => {
       // Define user DTO from form data
       const userData = req.body;
-      userData.dob = DateTime.fromJSDate(userData.dob, {
-        zone: 'utc',
-      }).toSQLDate();
 
       const userDto = plainToClass(UpsertUserDto, userData);
 

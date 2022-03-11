@@ -15,9 +15,6 @@ class UpsertUserDto {
 
   @Expose()
   password!: string;
-
-  @Expose()
-  dob!: string;
 }
 
 // Exports

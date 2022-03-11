@@ -1,6 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import argon2 from 'argon2';
-import { DateTime } from 'luxon';
 
 import UpsertUserDto from '@/dto/UpsertUserDto';
 
@@ -18,7 +17,6 @@ const newUser = async (userData: UpsertUserDto) =>
     firstName: userData.firstName,
     lastName: userData.lastName,
     emailAddress: userData.emailAddress,
-    dob: DateTime.fromSQL(userData.dob, { zone: 'utc' }).toJSDate(),
     password: await argon2.hash(userData.password, {
       timeCost: 10,
       memoryCost: 2 ** 16,

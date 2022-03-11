@@ -86,20 +86,6 @@ const apiUserValidationSchema = {
       },
     },
   },
-  dob: {
-    in: ['body'],
-    trim: true,
-    notEmpty: {
-      errorMessage: 'Date of Birth is required',
-    },
-    isDate: {
-      errorMessage: 'Date of Birth must be a valid date',
-    },
-    isBefore: {
-      errorMessage: 'Date of Birth cannot be in the future',
-    },
-    toDate: true,
-  },
 };
 
 /**

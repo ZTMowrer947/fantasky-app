@@ -53,7 +53,6 @@ model User {
   lastName     String    @db.VarChar
   emailAddress String    @unique(map: "UQ_eea9ba2f6e1bb8cb89c4e672f62") @db.VarChar
   password     String    @db.VarChar
-  dob          DateTime  @db.Date
   tasks        Task[]
 
   @@map("user")
