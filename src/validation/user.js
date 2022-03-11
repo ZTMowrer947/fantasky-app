@@ -1,5 +1,6 @@
 // Imports
-import User from '../entities/User';
+import fetchUser from '@/lib/queries/user/fetchUser';
+import prisma from '@/prisma';
 
 // Validation schemas
 /**
@@ -31,15 +32,12 @@ const apiUserValidationSchema = {
       errorMessage: 'Email Address much be formatted as such',
     },
     custom: {
-      async options(value, { req }) {
-        // Get repository from database connection
-        const repository = req.db.getRepository(User);
-
-        // Check if any accounts are using the provided email address
-        const emailCount = await repository.count({ emailAddress: value });
+      async options(emailAddress) {
+        // Check if a user with this email already exists
+        const user = await fetchUser(prisma, emailAddress);
 
         // If an account is using this email address,
-        if (emailCount > 0) {
+        if (user) {
           // Throw error
           throw new Error('The provided email address is already in use.');
         }
