@@ -2,37 +2,19 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 
-import bootstrapDatabase from './bootstrapDatabase';
-
 // Test prisma client connection
 console.log('Connecting to database through Prisma...');
 
 import('./prisma').then(() => {
-  console.log("Connection successful. Now connecting through TypeORM (for interim db work)...")
+  console.log("Connection successful. Starting web server...")
 
-  // Connect through TypeORM
-  return bootstrapDatabase();
+  // Asyncronously import app
+  return import('./app');
 }, (error) => {
   console.error((`Could not connect via Prisma: ${error}`))
 
   process.exit(1);
 })
-  .then(
-    () => {
-      // If successful, report that database connection succeeded
-      console.log('TypeORM connection successful. Starting web server...');
-
-      // Asyncronously import app
-      return import('./app');
-    },
-    (error) => {
-      // Report that database connection failed
-      console.error(`Could not connect via TypeORM: ${error}`);
-
-      // Exit with failure code
-      process.exit(1);
-    }
-  )
   .then(
     ({ default: app }) => {
       // Listen on port 5000
