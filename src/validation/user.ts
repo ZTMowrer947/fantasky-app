@@ -1,12 +1,11 @@
 // Imports
+import { Schema } from 'express-validator';
+
 import fetchUser from '@/lib/queries/user/fetchUser';
 import prisma from '@/prisma';
 
 // Validation schemas
-/**
- * @type {import("express-validator").Schema}
- */
-const apiUserValidationSchema = {
+const apiUserValidationSchema: Schema = {
   firstName: {
     in: ['body'],
     notEmpty: {
@@ -88,10 +87,7 @@ const apiUserValidationSchema = {
   },
 };
 
-/**
- * @type {import("express-validator").Schema}
- */
-const frontendUserValidationSchema = {
+const frontendUserValidationSchema: Schema = {
   ...apiUserValidationSchema,
   confirmPassword: {
     in: ['body'],

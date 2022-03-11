@@ -1,5 +1,5 @@
 dist/
-src/index.js
+src/index.ts
 gulpfile.js
 *config.js
 src/migrations/

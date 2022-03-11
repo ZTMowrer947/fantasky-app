@@ -1,8 +1,7 @@
-// Validation schemas
-/**
- * @type {import("express-validator").Schema}
- */
-const taskValidationSchema = {
+import { Schema } from 'express-validator';
+
+// Validation schema
+const taskValidationSchema: Schema = {
   name: {
     in: ['body'],
     notEmpty: {
