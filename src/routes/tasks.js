@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Imports
-import { PrismaClient } from '@prisma/client';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
@@ -13,11 +12,13 @@ import {
   deserializeDaysToRepeat,
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
+import createTask from '@/lib/queries/tasks/createTask';
 import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import database from '@/middleware/database';
+import prisma from '@/prisma';
 import TaskService from '@/services/TaskService';
 import { taskValidationSchema } from '@/validation/task';
 
@@ -30,14 +31,10 @@ taskRoutes
   .get(
     ensureLoggedIn('/login'),
     asyncHandler(async (req, res) => {
-      const prisma = new PrismaClient();
-
       const prismaTasks = await fetchTasks(
         prisma,
         Number.parseInt(req.user.id, 10)
       );
-
-      await prisma.$disconnect();
 
       // Map tasks into view model data
       res.locals.tasks = prismaTasks.map((task) => {
@@ -130,13 +127,13 @@ taskRoutes
         next();
       }
     },
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const taskService = new TaskService(req.db);
-
       // Create task
-      const id = await taskService.create(req.user, req.body);
+      const id = await createTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.body
+      );
 
       // Redirect to detail page of newly created task
       res.redirect(`/tasks/${id}`);
@@ -150,17 +147,12 @@ taskRoutes
     ensureLoggedIn('/login'),
     csrf,
     asyncHandler(async (req, res) => {
-      // Instantiate prisma client
-      const prisma = new PrismaClient();
-
       // Retrieve task by id
       const task = await fetchTask(
         prisma,
         Number.parseInt(req.user.id, 10),
         req.params.id
       );
-
-      await prisma.$disconnect();
 
       // If task was not found,
       if (!task) {
@@ -271,8 +263,6 @@ taskRoutes
     ensureLoggedIn('/login'),
     csrf,
     asyncHandler(async (req, res) => {
-      const prisma = new PrismaClient();
-
       // Retrieve task by id
       const task = await fetchTask(
         prisma,
@@ -296,8 +286,6 @@ taskRoutes
         task,
         today
       );
-
-      await prisma.$disconnect();
 
       // Re-render task details
       res.redirect(`/tasks/${task.id}`);
