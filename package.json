@@ -54,8 +54,7 @@
     "pg-hstore": "^2.3.3",
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.5",
-    "serialize-error": "^7.0.1",
-    "typeorm": "^0.2.25"
+    "serialize-error": "^7.0.1"
   },
   "devDependencies": {
     "@babel/cli": "~7.10.3",
