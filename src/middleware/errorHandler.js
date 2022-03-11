@@ -25,6 +25,10 @@ function errorHandler(err, req, res, next) {
 
     return;
   }
+  if (err.message.startsWith('Serialized user')) {
+    // Log out user in case of serialization error
+    req.logOut();
+  }
 
   // If we are not in production,
   if (process.env.NODE_ENV !== 'production') {
