@@ -13,14 +13,13 @@ import {
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
 import createTask from '@/lib/queries/tasks/createTask';
+import deleteTask from '@/lib/queries/tasks/deleteTask';
 import editTask from '@/lib/queries/tasks/editTask';
 import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
-import database from '@/middleware/database';
 import prisma from '@/prisma';
-import TaskService from '@/services/TaskService';
 import { taskValidationSchema } from '@/validation/task';
 
 // Express router setup
@@ -421,21 +420,18 @@ taskRoutes
   .get(
     ensureLoggedIn('/login'),
     csrf,
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
-
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
+      );
 
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
+      // If task was not found,
+      if (!task) {
         // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
+        throw createError(404, 'The requested task cannot be found.');
       }
 
       // Attach needed task data for view
@@ -454,25 +450,22 @@ taskRoutes
   .post(
     ensureLoggedIn('/login'),
     csrf,
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
-
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
+      );
 
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
+      // If task was not found,
+      if (!task) {
         // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
+        throw createError(404, 'The requested task cannot be found.');
       }
 
       // Delete task
-      await service.delete(task);
+      await deleteTask(prisma, task.id);
 
       // Redirect to task listing
       res.redirect('/tasks');
