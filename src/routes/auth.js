@@ -7,9 +7,9 @@ import { DateTime } from 'luxon';
 import passport from 'passport';
 
 import UpsertUserDto from '@/dto/UpsertUserDto';
+import createUser from '@/lib/queries/user/createUser';
 import csrf from '@/middleware/csrf';
-import database from '@/middleware/database';
-import UserService from '@/services/UserService';
+import prisma from '@/prisma';
 import { frontendUserValidationSchema } from '@/validation/user';
 
 // Express router setup
@@ -54,7 +54,6 @@ authRoutes
   })
   .post(
     csrf,
-    database,
     checkSchema(frontendUserValidationSchema),
     asyncHandler(async (req, res, next) => {
       // Get validation results
@@ -89,9 +88,6 @@ authRoutes
       }
     }),
     asyncHandler(async (req, res, next) => {
-      // Instantiate user service
-      const service = new UserService(req.db);
-
       // Define user DTO from form data
       const userData = req.body;
       userData.dob = DateTime.fromJSDate(userData.dob, {
@@ -101,10 +97,7 @@ authRoutes
       const userDto = plainToClass(UpsertUserDto, userData);
 
       // Create new user
-      await service.create(userDto);
-
-      // Retrieve newly created user
-      const newUser = await service.getByEmail(userDto.emailAddress);
+      const newUser = await createUser(prisma, userDto);
 
       // Log in new user
       req.login(newUser, (err) => {
