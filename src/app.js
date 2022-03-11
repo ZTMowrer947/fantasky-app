@@ -11,13 +11,13 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
 
-// import api from './api';
-import { getDatabaseConnection } from './bootstrapDatabase';
+import fetchUser from '@/lib/queries/user/fetchUser';
+
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
 import errorHandler from './middleware/errorHandler';
+import prisma from './prisma';
 import frontendRoutes from './routes';
 import { redisOptions, sessionSecret } from './secrets';
-import UserService from './services/UserService';
 
 // Redis setup
 const redis = new Redis(redisOptions);
@@ -100,33 +100,13 @@ passport.use(
       passwordField: 'password',
     },
     async (emailAddress, password, done) => {
-      // Create database connection
-      const connection = getDatabaseConnection();
-
       try {
-        // Instantiate user service
-        const service = new UserService(connection);
+        // Retrieve user data and verify credentials
+        const user = await fetchUser(prisma, emailAddress, password);
 
-        // Use service to verify credentials
-        const credentialsValid = await service.verifyCredentials(
-          emailAddress,
-          password
-        );
-
-        // If they are invalid,
-        if (!credentialsValid) {
-          // Deny access
-          return done(null, false);
-        }
-
-        // Otherwise, retrieve user data
-        const user = await service.getByEmail(emailAddress);
-
-        // Grant access
-        return done(null, user);
+        // Grant access only if credentials were valid and user was found
+        return done(null, user ?? false);
       } catch (error) {
-        // If an error occurs, close database connection
-
         // Pass error through callback
         return done(error);
       }
@@ -141,15 +121,9 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (emailAddress, done) => {
-  // Create database connection
-  const connection = getDatabaseConnection();
-
   try {
-    // Instantiate user service
-    const service = new UserService(connection);
-
     // Retrieve user data
-    const user = await service.getByEmail(emailAddress);
+    const user = await fetchUser(prisma, emailAddress);
 
     // If user was found,
     if (user) {
@@ -160,8 +134,6 @@ passport.deserializeUser(async (emailAddress, done) => {
     // Otherwise, return error
     return done(new Error('Serialized user could not be found.'));
   } catch (error) {
-    // If an error occurs, close database connection
-
     // Pass error through callback
     return done(error);
   }
