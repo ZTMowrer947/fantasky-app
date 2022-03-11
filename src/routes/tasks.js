@@ -165,39 +165,23 @@ taskRoutes
       // Calculate active days
       const activeDayString = formatDaysToRepeat(activeDays);
 
-      const streak = [];
+      const days = task.tasksToDays.map((taskToDay) =>
+        DateTime.fromJSDate(taskToDay.day.date, { zone: 'utc' })
+      );
 
-      for (let i = task.tasksToDays.length - 1; i >= 0; i -= 1) {
-        // Get day being processed
-        const { day } = task.tasksToDays[i];
+      const reversedStreakStartIndex = [...days]
+        .reverse()
+        .findIndex((day, idx, array) => {
+          const nextDay = idx < array.length - 1 ? array[idx + 1] : null;
 
-        // Parse date as ISO date string
-        const parsedDate = DateTime.fromJSDate(day.date, { zone: 'utc' });
+          return nextDay && day.plus({ days: 1 }).equals(nextDay);
+        });
+      const streakStartIndex =
+        reversedStreakStartIndex >= 0
+          ? days.length - 1 - reversedStreakStartIndex
+          : reversedStreakStartIndex;
 
-        // If this is the last element in the array,
-        if (i === task.tasksToDays.length - 1) {
-          // Prepend to streak
-          streak.unshift(parsedDate);
-        } else {
-          // Otherwise, determine date of next day
-          const dayAfterParsedDate = parsedDate.plus({ days: 1 });
-
-          // Get day of element immediately following this one
-          const nextDay = task.tasksToDays[i + 1].day;
-
-          // Parse date of that day
-          const nextDate = DateTime.fromJSDate(nextDay.date, { zone: 'utc' });
-
-          // If the dates match,
-          if (nextDate.equals(dayAfterParsedDate)) {
-            // Prepend current date to streak
-            streak.unshift(parsedDate);
-          } else {
-            // Otherwise, stop here
-            break;
-          }
-        }
-      }
+      const streak = days.slice(streakStartIndex);
 
       // Determine streak text
       const streakText =
@@ -208,13 +192,10 @@ taskRoutes
           : 'No Streak';
 
       // Declare variable for Saturday in week that today falls into
-      let nextSaturday = DateTime.fromISO(DateTime.utc().toISODate(), {
-        zone: 'utc',
-      });
-
-      while (nextSaturday.weekday !== 6) {
-        nextSaturday = nextSaturday.plus({ days: 1 });
-      }
+      const nextSaturday = DateTime.utc()
+        .endOf('week')
+        .startOf('day')
+        .minus({ days: 1 });
 
       // Get the Sunday after the present/future Saturday, then back up three weeks
       const sundayThreeWeeksAgo = nextSaturday.minus({ days: 20 });
