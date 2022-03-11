@@ -16,6 +16,7 @@ const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
   id: true,
   name: true,
   description: true,
+  startDate: true,
   daysToRepeat: true,
   tasksToDays: {
     select: {

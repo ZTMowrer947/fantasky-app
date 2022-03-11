@@ -13,6 +13,7 @@ import {
   formatDaysToRepeat,
 } from '@/lib/helpers/days';
 import createTask from '@/lib/queries/tasks/createTask';
+import editTask from '@/lib/queries/tasks/editTask';
 import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
@@ -298,48 +299,31 @@ taskRoutes
   .get(
     ensureLoggedIn('/login'),
     csrf,
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
-
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
+      );
 
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
+      // If task was not found,
+      if (!task) {
         // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
+        throw createError(404, 'The requested task cannot be found.');
       }
 
       // Convert binary day representation into boolean values
-      const [activeDays] = Array.from({ length: 7 }).reduce(
-        ([daysActive, daysBinary]) => {
-          const dayIsActive = daysBinary % 2 !== 0;
-          const quotient = Math.trunc(daysBinary / 2);
-
-          return [[dayIsActive, ...daysActive], quotient];
-        },
-        [[], task.daysToRepeat]
-      );
-
-      const [sun, mon, tue, wed, thu, fri, sat] = activeDays;
+      const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
 
       // Define local data for view
       res.locals.values = {
         name: task.name,
         description: task.description,
-        startDate: task.startDate,
-        sun,
-        mon,
-        tue,
-        wed,
-        thu,
-        fri,
-        sat,
+        startDate: DateTime.fromJSDate(task.startDate, {
+          zone: 'utc',
+        }).toISODate(),
+        ...activeDays,
       };
       res.locals.taskId = task.id;
 
@@ -409,25 +393,22 @@ taskRoutes
         next();
       }
     },
-    database,
     asyncHandler(async (req, res) => {
-      // Instantiate task service
-      const service = new TaskService(req.db);
-
       // Retrieve task by id
-      const task = await service.findById(req.params.id);
+      const task = await fetchTask(
+        prisma,
+        Number.parseInt(req.user.id, 10),
+        req.params.id
+      );
 
-      // If task was not found or is not owned by the logged-in user,
-      if (task?.creator?.id !== req.user.id) {
+      // If task was not found,
+      if (!task) {
         // Throw 404 error
-        throw createError(
-          404,
-          'The requested task either does not exist or you do not have permission to access it.'
-        );
+        throw createError(404, 'The requested task cannot be found.');
       }
 
       // Update task
-      await service.update(task, req.body);
+      await editTask(prisma, task.id, req.body);
 
       // Redirect to detail page for task
       res.redirect(`/tasks/${task.id}`);
