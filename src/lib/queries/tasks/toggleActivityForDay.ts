@@ -5,12 +5,12 @@ import { DetailedTask } from '@/lib/queries/tasks/fetchTask';
 
 // Query filtering
 const taskHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.NewTaskWhereUniqueInput>()({
+  Prisma.validator<Prisma.TaskWhereUniqueInput>()({
     id,
   });
 
 // Query selection
-const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
+const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
   id: true,
   name: true,
   description: true,
@@ -41,7 +41,7 @@ const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
 
 // Mutation alteration
 const newDay = (date: Date) =>
-  Prisma.validator<Prisma.NewTaskUpdateInput>()({
+  Prisma.validator<Prisma.TaskUpdateInput>()({
     completedDays: {
       connectOrCreate: {
         where: {
@@ -55,7 +55,7 @@ const newDay = (date: Date) =>
   });
 
 const removeDay = (taskId: number | bigint, dayId: number | bigint) =>
-  Prisma.validator<Prisma.NewTaskUpdateInput>()({
+  Prisma.validator<Prisma.TaskUpdateInput>()({
     completedDays: {
       disconnect: {
         id: dayId,
@@ -74,7 +74,7 @@ export default function toggleActivityForDay(
     DateTime.fromJSDate(completedDay.date).equals(dayToToggle)
   );
 
-  return prisma.newTask.update({
+  return prisma.task.update({
     where: taskHasId(task.id),
     data: matchingDay
       ? removeDay(task.id, matchingDay.id)

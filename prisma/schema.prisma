@@ -8,28 +8,28 @@ datasource db {
 }
 
 model ActiveDays {
-  id        BigInt   @id @default(autoincrement())
-  sunday    Boolean  @default(false)
-  monday    Boolean  @default(false)
-  tuesday   Boolean  @default(false)
-  wednesday Boolean  @default(false)
-  thursday  Boolean  @default(false)
-  friday    Boolean  @default(false)
-  saturday  Boolean  @default(false)
-  task      NewTask?
+  id        BigInt  @id @default(autoincrement())
+  sunday    Boolean @default(false)
+  monday    Boolean @default(false)
+  tuesday   Boolean @default(false)
+  wednesday Boolean @default(false)
+  thursday  Boolean @default(false)
+  friday    Boolean @default(false)
+  saturday  Boolean @default(false)
+  task      Task?
 
   @@map("active_days")
 }
 
 model Day {
-  id          BigInt      @id(map: "PK_42e726f6b72349f70b25598b50e") @default(autoincrement())
-  date        DateTime    @unique(map: "UQ_e4662724cf9f92100be40f24ee0") @db.Date
-  tasks       NewTask[]
+  id    BigInt   @id(map: "PK_42e726f6b72349f70b25598b50e") @default(autoincrement())
+  date  DateTime @unique(map: "UQ_e4662724cf9f92100be40f24ee0") @db.Date
+  tasks Task[]
 
   @@map("day")
 }
 
-model NewTask {
+model Task {
   id            BigInt     @id @default(autoincrement())
   createdAt     DateTime   @default(now()) @db.Timestamp(6)
   updatedAt     DateTime   @updatedAt @db.Timestamp(6)
@@ -55,7 +55,7 @@ model User {
   lastName     String    @db.VarChar
   emailAddress String    @unique(map: "UQ_eea9ba2f6e1bb8cb89c4e672f62") @db.VarChar
   password     String    @db.VarChar
-  newTasks     NewTask[]
+  tasks        Task[]
 
   @@map("user")
 }

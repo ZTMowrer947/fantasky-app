@@ -3,13 +3,13 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import UpsertTaskDto from '@/dto/UpsertTaskDto';
 
 // Mutation selection
-const taskIdOnly = Prisma.validator<Prisma.NewTaskSelect>()({
+const taskIdOnly = Prisma.validator<Prisma.TaskSelect>()({
   id: true,
 });
 
 // Mutation input
 const newTask = (userId: number | bigint, taskData: UpsertTaskDto) =>
-  Prisma.validator<Prisma.NewTaskCreateInput>()({
+  Prisma.validator<Prisma.TaskCreateInput>()({
     creator: {
       connect: {
         id: userId,
@@ -38,7 +38,7 @@ export default function createTask(
   userId: number | bigint,
   taskData: UpsertTaskDto
 ) {
-  return prisma.newTask.create({
+  return prisma.task.create({
     data: newTask(userId, taskData),
     select: taskIdOnly,
   });

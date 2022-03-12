@@ -4,18 +4,18 @@ import UpsertTaskDto from '@/dto/UpsertTaskDto';
 
 // Mutation filtering
 const taskHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.NewTaskWhereInput>()({
+  Prisma.validator<Prisma.TaskWhereInput>()({
     id,
   });
 
 // Mutation selection
-const taskIdOnly = Prisma.validator<Prisma.NewTaskSelect>()({
+const taskIdOnly = Prisma.validator<Prisma.TaskSelect>()({
   id: true,
 });
 
 // Mutation input
 const modifyTask = (taskData: UpsertTaskDto) =>
-  Prisma.validator<Prisma.NewTaskUpdateInput>()({
+  Prisma.validator<Prisma.TaskUpdateInput>()({
     name: taskData.name,
     description: taskData.description,
     startDate: taskData.startDate,
@@ -39,7 +39,7 @@ export default function editTask(
   taskId: number | bigint,
   taskData: UpsertTaskDto
 ) {
-  return prisma.newTask.update({
+  return prisma.task.update({
     where: taskHasId(taskId),
     data: modifyTask(taskData),
     select: taskIdOnly,

@@ -2,17 +2,17 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 // Query filtering
 const creatorHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.NewTaskWhereInput>()({
+  Prisma.validator<Prisma.TaskWhereInput>()({
     creatorId: id,
   });
 
 const taskHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.NewTaskWhereInput>()({
+  Prisma.validator<Prisma.TaskWhereInput>()({
     id,
   });
 
 // Query selection
-const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
+const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
   id: true,
   name: true,
   description: true,
@@ -41,7 +41,7 @@ const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
   },
 });
 
-export type DetailedTask = Prisma.NewTaskGetPayload<{
+export type DetailedTask = Prisma.TaskGetPayload<{
   select: typeof detailedTask;
 }>;
 
@@ -50,7 +50,7 @@ export default function fetchTask(
   creatorId: number | bigint,
   taskId: number | bigint
 ) {
-  return prisma.newTask.findFirst({
+  return prisma.task.findFirst({
     select: detailedTask,
     where: {
       AND: [creatorHasId(creatorId), taskHasId(taskId)],
