@@ -1,3 +1,4 @@
+import TaskAddModule from '@/components/TaskAddModule';
 import TaskModule from '@/components/TaskModule';
 import { TaskPreview } from '@/lib/queries/tasks/fetchTasks';
 
@@ -13,15 +14,7 @@ export default function TaskList({ tasks }: PropTypes) {
         <TaskModule task={task} key={task.id.toString()} />
       ))}
 
-      <div className="col-12 col-lg-6 col-xl-4">
-        <a
-          className="task-module task-add-module task-link bg-light w-100"
-          href="/tasks/new"
-        >
-          <br />
-          <h3 className="text-center text-danger">+ New Task</h3>
-        </a>
-      </div>
+      <TaskAddModule />
 
       <style>{`
         .task-module {
