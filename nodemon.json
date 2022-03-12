@@ -6,6 +6,6 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "exec": "babel-node -x .ts,.js src",
-  "ext": "ts,js"
+  "exec": "babel-node -x .ts,.js,.tsx,.jsx src",
+  "ext": "ts,js,tsx,jsx"
 }
