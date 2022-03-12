@@ -57,7 +57,7 @@ export default function TaskList({ tasks }: PropTypes) {
         </a>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .task-module {
           border-radius: 8px;
           min-height: 107px;

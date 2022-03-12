@@ -37,8 +37,6 @@
 
     "@babel/proposal-optional-chaining",
 
-    "@babel/proposal-nullish-coalescing-operator",
-
-    "styled-jsx/babel"
+    "@babel/proposal-nullish-coalescing-operator"
   ]
 }
