@@ -1,31 +1,37 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 // Query filtering
-const creatorHasId = (id: number) =>
-  Prisma.validator<Prisma.TaskWhereInput>()({
+const creatorHasId = (id: number | bigint) =>
+  Prisma.validator<Prisma.NewTaskWhereInput>()({
     creatorId: id,
   });
 
-const taskHasId = (id: number) =>
-  Prisma.validator<Prisma.TaskWhereInput>()({
+const taskHasId = (id: number | bigint) =>
+  Prisma.validator<Prisma.NewTaskWhereInput>()({
     id,
   });
 
 // Query selection
-const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
+const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
   id: true,
   name: true,
   description: true,
   startDate: true,
-  daysToRepeat: true,
-  tasksToDays: {
+  activeDays: {
     select: {
-      day: {
-        select: {
-          id: true,
-          date: true,
-        },
-      },
+      sunday: true,
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
+      saturday: true,
+    },
+  },
+  completedDays: {
+    select: {
+      id: true,
+      date: true,
     },
   },
   creator: {
@@ -41,10 +47,10 @@ export type DetailedTask = Prisma.TaskGetPayload<{
 
 export default function fetchTask(
   prisma: PrismaClient,
-  creatorId: number,
-  taskId: number
+  creatorId: number | bigint,
+  taskId: number | bigint
 ) {
-  return prisma.task.findFirst({
+  return prisma.newTask.findFirst({
     select: detailedTask,
     where: {
       AND: [creatorHasId(creatorId), taskHasId(taskId)],

@@ -174,13 +174,30 @@ taskRoutes
         throw createError(404, 'The requested task cannot be found.');
       }
 
-      const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
+      const {
+        sunday,
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
+      } = task.activeDays;
+      const activeDays = {
+        sun: sunday,
+        mon: monday,
+        tue: tuesday,
+        wed: wednesday,
+        thu: thursday,
+        fri: friday,
+        sat: saturday,
+      };
 
       // Calculate active days
       const activeDayString = formatDaysToRepeat(activeDays);
 
-      const days = task.tasksToDays.map((taskToDay) =>
-        DateTime.fromJSDate(taskToDay.day.date, { zone: 'utc' })
+      const days = task.completedDays.map((day) =>
+        DateTime.fromJSDate(day.date, { zone: 'utc' })
       );
 
       const reversedStreakStartIndex = [...days]
