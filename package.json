@@ -1,6 +1,6 @@
 {
   "name": "fantasky",
-  "version": "0.0.3",
+  "version": "0.5.0",
   "description": "A simple task management app",
   "main": "dist/index.js",
   "scripts": {
