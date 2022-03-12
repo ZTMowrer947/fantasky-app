@@ -11,6 +11,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
 
+import renderPage from '@/lib/helpers/renderPage';
 import fetchUser from '@/lib/queries/user/fetchUser';
 
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
@@ -83,10 +84,7 @@ app.use(passport.session());
 app.use(attachLoginStatusToView);
 app.use((req, res, next) => {
   // Determine whether security seal should be displayed
-  const showSeal = app.get('env') === 'production';
-
-  // Attach result to view locals
-  res.locals.showSeal = showSeal;
+  res.locals.showSeal = app.get('env') === 'production';
 
   // Proceed with middleware chain
   next();
@@ -141,6 +139,13 @@ passport.deserializeUser(async (emailAddress, done) => {
 
 // Frontend routes
 app.use(frontendRoutes);
+
+app.get('/react-test', (req, res) => {
+  res.locals.title = 'React test';
+
+  res.send(renderPage(req, res, <h1>React test</h1>));
+});
+
 app.use((req, res, next) => {
   // Redirect all uncaught routes to 404 page
   const error = createError(404);
