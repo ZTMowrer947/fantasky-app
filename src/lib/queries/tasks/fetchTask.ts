@@ -41,7 +41,7 @@ const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
   },
 });
 
-export type DetailedTask = Prisma.TaskGetPayload<{
+export type DetailedTask = Prisma.NewTaskGetPayload<{
   select: typeof detailedTask;
 }>;
 

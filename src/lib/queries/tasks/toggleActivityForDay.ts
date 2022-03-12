@@ -5,24 +5,31 @@ import { DetailedTask } from '@/lib/queries/tasks/fetchTask';
 
 // Query filtering
 const taskHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.TaskWhereUniqueInput>()({
+  Prisma.validator<Prisma.NewTaskWhereUniqueInput>()({
     id,
   });
 
 // Query selection
-const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
+const detailedTask = Prisma.validator<Prisma.NewTaskSelect>()({
   id: true,
   name: true,
   description: true,
-  daysToRepeat: true,
-  tasksToDays: {
+  startDate: true,
+  activeDays: {
     select: {
-      day: {
-        select: {
-          id: true,
-          date: true,
-        },
-      },
+      sunday: true,
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
+      saturday: true,
+    },
+  },
+  completedDays: {
+    select: {
+      id: true,
+      date: true,
     },
   },
   creator: {
@@ -34,28 +41,24 @@ const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
 
 // Mutation alteration
 const newDay = (date: Date) =>
-  Prisma.validator<Prisma.TaskUpdateInput>()({
-    tasksToDays: {
-      create: {
-        day: {
-          connectOrCreate: {
-            where: {
-              date,
-            },
-            create: {
-              date,
-            },
-          },
+  Prisma.validator<Prisma.NewTaskUpdateInput>()({
+    completedDays: {
+      connectOrCreate: {
+        where: {
+          date,
+        },
+        create: {
+          date,
         },
       },
     },
   });
 
 const removeDay = (taskId: number | bigint, dayId: number | bigint) =>
-  Prisma.validator<Prisma.TaskUpdateInput>()({
-    tasksToDays: {
-      delete: {
-        taskId_dayId: { taskId, dayId },
+  Prisma.validator<Prisma.NewTaskUpdateInput>()({
+    completedDays: {
+      disconnect: {
+        id: dayId,
       },
     },
   });
@@ -67,14 +70,14 @@ export default function toggleActivityForDay(
   day: Date
 ) {
   const dayToToggle = DateTime.fromJSDate(day);
-  const matchingTaskToDay = task.tasksToDays.find((taskToDay) =>
-    DateTime.fromJSDate(taskToDay.day.date).equals(dayToToggle)
+  const matchingDay = task.completedDays.find((completedDay) =>
+    DateTime.fromJSDate(completedDay.date).equals(dayToToggle)
   );
 
-  return prisma.task.update({
+  return prisma.newTask.update({
     where: taskHasId(task.id),
-    data: matchingTaskToDay
-      ? removeDay(task.id, matchingTaskToDay.day.id)
+    data: matchingDay
+      ? removeDay(task.id, matchingDay.id)
       : newDay(dayToToggle.toJSDate()),
     select: detailedTask,
   });
