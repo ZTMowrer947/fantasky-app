@@ -1,27 +1,36 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 import UpsertTaskDto from '@/dto/UpsertTaskDto';
-import { serializeDaysToRepeat } from '@/lib/helpers/days';
 
 // Mutation filtering
 const taskHasId = (id: number | bigint) =>
-  Prisma.validator<Prisma.TaskWhereInput>()({
+  Prisma.validator<Prisma.NewTaskWhereInput>()({
     id,
   });
 
 // Mutation selection
-const taskIdOnly = Prisma.validator<Prisma.TaskSelect>()({
+const taskIdOnly = Prisma.validator<Prisma.NewTaskSelect>()({
   id: true,
 });
 
 // Mutation input
 const modifyTask = (taskData: UpsertTaskDto) =>
-  Prisma.validator<Prisma.TaskUpdateInput>()({
+  Prisma.validator<Prisma.NewTaskUpdateInput>()({
     name: taskData.name,
     description: taskData.description,
     startDate: taskData.startDate,
     reminderTime: taskData.reminderTime,
-    daysToRepeat: serializeDaysToRepeat(taskData.activeDays),
+    activeDays: {
+      create: {
+        sunday: taskData.activeDays.sun,
+        monday: taskData.activeDays.mon,
+        tuesday: taskData.activeDays.tue,
+        wednesday: taskData.activeDays.wed,
+        thursday: taskData.activeDays.thu,
+        friday: taskData.activeDays.fri,
+        saturday: taskData.activeDays.sat,
+      },
+    },
   });
 
 // Mutation
@@ -30,7 +39,7 @@ export default function editTask(
   taskId: number | bigint,
   taskData: UpsertTaskDto
 ) {
-  return prisma.task.update({
+  return prisma.newTask.update({
     where: taskHasId(taskId),
     data: modifyTask(taskData),
     select: taskIdOnly,

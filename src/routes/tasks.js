@@ -8,10 +8,7 @@ import createError from 'http-errors';
 import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
-import {
-  deserializeDaysToRepeat,
-  formatDaysToRepeat,
-} from '@/lib/helpers/days';
+import { formatDaysToRepeat } from '@/lib/helpers/days';
 import createTask from '@/lib/queries/tasks/createTask';
 import deleteTask from '@/lib/queries/tasks/deleteTask';
 import editTask from '@/lib/queries/tasks/editTask';
@@ -324,8 +321,24 @@ taskRoutes
         throw createError(404, 'The requested task cannot be found.');
       }
 
-      // Convert binary day representation into boolean values
-      const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
+      const {
+        sunday,
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
+      } = task.activeDays;
+      const activeDays = {
+        sun: sunday,
+        mon: monday,
+        tue: tuesday,
+        wed: wednesday,
+        thu: thursday,
+        fri: friday,
+        sat: saturday,
+      };
 
       // Define local data for view
       res.locals.values = {
