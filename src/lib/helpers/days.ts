@@ -35,24 +35,22 @@ export function formatDaysToRepeat(activeDays: Omit<ActiveDays, 'id'>) {
 }
 
 export function getStartOfCompletionStreak(task: DetailedTask) {
+  if (task.completedDays.length === 0) return null;
+
+  const today = DateTime.utc().startOf('day');
+  const yesterday = today.minus({ days: 1 });
+
   const days = task.completedDays.map((day) =>
     DateTime.fromJSDate(day.date, { zone: 'utc' })
   );
 
-  const reversedStreakStartIndex = [...days]
-    .sort((a, b) => a.toMillis() - b.toMillis())
-    .reverse()
-    .findIndex((day, idx, array) => {
-      const nextDay = idx < array.length - 1 ? array[idx + 1] : null;
+  if (!days[0].equals(today) && !days[0].equals(yesterday)) return null;
 
-      return nextDay && day.plus({ days: 1 }).equals(nextDay);
-    });
-  const streakStartIndex =
-    reversedStreakStartIndex >= 0
-      ? days.length - 1 - reversedStreakStartIndex
-      : reversedStreakStartIndex;
+  const streakStartIndex = days.findIndex((day, idx, array) => {
+    const prevDay = idx < array.length - 1 ? array[idx + 1] : null;
 
-  const streak = days.slice(streakStartIndex);
+    return !prevDay || !day.minus({ days: 1 }).equals(prevDay);
+  });
 
-  return streak.length > 0 ? streak[0] : null;
+  return streakStartIndex !== -1 ? days[streakStartIndex] : null;
 }

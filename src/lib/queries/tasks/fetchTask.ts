@@ -29,6 +29,9 @@ const detailedTask = Prisma.validator<Prisma.TaskSelect>()({
     },
   },
   completedDays: {
+    orderBy: {
+      date: 'desc',
+    },
     select: {
       id: true,
       date: true,
