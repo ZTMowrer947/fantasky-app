@@ -42,7 +42,8 @@
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": ["error", {
       "extensions": [".js", ".jsx", ".tsx"]
-    }]
+    }],
+    "react/require-default-props": "off"
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],

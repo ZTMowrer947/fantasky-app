@@ -1,3 +1,5 @@
+import NavLink from '@/components/NavLink';
+
 interface PropTypes {
   userName: string;
   path: string;
@@ -31,31 +33,23 @@ export default function Header({ userName, path }: PropTypes) {
                   Welcome {userName}!
                 </div>
                 <div className="nav-item">
-                  <a href="/logout" className="nav-link">
+                  <NavLink href="/logout" path={path}>
                     Log Out
-                  </a>
+                  </NavLink>
                 </div>
               </>
             )}
             {!userName && (
               <>
                 <div className="nav-item ml-auto">
-                  <a
-                    href="/login"
-                    className={path === '/login' ? 'nav-link active' : 'active'}
-                  >
+                  <NavLink href="/login" path={path}>
                     Log In
-                  </a>
+                  </NavLink>
                 </div>
                 <div className="nav-item">
-                  <a
-                    href="/register"
-                    className={
-                      path === '/register' ? 'nav-link active' : 'active'
-                    }
-                  >
+                  <NavLink href="/register" path={path}>
                     Register
-                  </a>
+                  </NavLink>
                 </div>
               </>
             )}
