@@ -39,6 +39,6 @@
 
     "@babel/proposal-nullish-coalescing-operator",
 
-    "macros"
+    "styled-jsx/babel"
   ]
 }
