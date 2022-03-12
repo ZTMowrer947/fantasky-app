@@ -6,7 +6,8 @@
     "ecmaVersion": 2021
   },
   "extends": [
-    "airbnb-base",
+    "airbnb",
+    "airbnb/hooks",
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
@@ -36,7 +37,12 @@
     "sort-imports": "off",
     "import/order": "off",
     "simple-import-sort/imports": "warn",
-    "simple-import-sort/exports": "warn"
+    "simple-import-sort/exports": "warn",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-filename-extension": ["error", {
+      "extensions": [".js", ".jsx", ".tsx"]
+    }]
   },
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
