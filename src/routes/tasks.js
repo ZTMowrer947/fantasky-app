@@ -31,14 +31,28 @@ taskRoutes
   .get(
     ensureLoggedIn('/login'),
     asyncHandler(async (req, res) => {
-      const prismaTasks = await fetchTasks(
-        prisma,
-        Number.parseInt(req.user.id, 10)
-      );
+      const tasks = await fetchTasks(prisma, Number.parseInt(req.user.id, 10));
 
       // Map tasks into view model data
-      res.locals.tasks = prismaTasks.map((task) => {
-        const activeDays = deserializeDaysToRepeat(task.daysToRepeat);
+      res.locals.tasks = tasks.map((task) => {
+        const {
+          sunday,
+          monday,
+          tuesday,
+          wednesday,
+          thursday,
+          friday,
+          saturday,
+        } = task.activeDays;
+        const activeDays = {
+          sun: sunday,
+          mon: monday,
+          tue: tuesday,
+          wed: wednesday,
+          thu: thursday,
+          fri: friday,
+          sat: saturday,
+        };
 
         // Calculate active days
         const activeDayString = formatDaysToRepeat(activeDays);

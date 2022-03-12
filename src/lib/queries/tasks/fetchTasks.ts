@@ -2,25 +2,31 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 // Query filtering
 const creatorHasId = (id: number) =>
-  Prisma.validator<Prisma.TaskWhereInput>()({
+  Prisma.validator<Prisma.NewTaskWhereInput>()({
     creatorId: id,
   });
 
 // Query selection
-const taskPreview = Prisma.validator<Prisma.TaskSelect>()({
+const taskPreview = Prisma.validator<Prisma.NewTaskSelect>()({
   id: true,
   name: true,
-  daysToRepeat: true,
-  tasksToDays: {
+  activeDays: {
     select: {
-      day: {
-        select: {
-          id: true,
-          date: true,
-        },
-      },
+      sunday: true,
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
+      saturday: true,
     },
   },
+  // completedDays: {
+  //   select: {
+  //     id: true,
+  //     date: true,
+  //   },
+  // },
   creator: {
     select: {
       id: true,
@@ -30,7 +36,7 @@ const taskPreview = Prisma.validator<Prisma.TaskSelect>()({
 
 // Query
 export default function fetchTasks(prisma: PrismaClient, creatorId: number) {
-  return prisma.task.findMany({
+  return prisma.newTask.findMany({
     select: taskPreview,
     where: creatorHasId(creatorId),
   });
