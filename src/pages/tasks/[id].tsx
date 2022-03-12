@@ -1,6 +1,9 @@
 import { DateTime, Interval } from 'luxon';
 
-import { formatDaysToRepeat } from '@/lib/helpers/days';
+import {
+  formatDaysToRepeat,
+  getStartOfCompletionStreak,
+} from '@/lib/helpers/days';
 import { DetailedTask } from '@/lib/queries/tasks/fetchTask';
 
 interface PropTypes {
@@ -10,33 +13,16 @@ interface PropTypes {
 
 export type TaskDetailProps = PropTypes;
 export default function TaskDetail({ task, csrfToken }: PropTypes) {
-  const days = task.completedDays.map((day) =>
-    DateTime.fromJSDate(day.date, { zone: 'utc' })
-  );
-
-  const reversedStreakStartIndex = [...days]
-    .reverse()
-    .findIndex((day, idx, array) => {
-      const nextDay = idx < array.length - 1 ? array[idx + 1] : null;
-
-      return nextDay && day.plus({ days: 1 }).equals(nextDay);
-    });
-  const streakStartIndex =
-    reversedStreakStartIndex >= 0
-      ? days.length - 1 - reversedStreakStartIndex
-      : reversedStreakStartIndex;
-
-  const streak = days.slice(streakStartIndex);
+  const streakStart = getStartOfCompletionStreak(task);
 
   // Determine streak text
-  const streakText =
-    streak.length > 0
-      ? `Streak ongoing since ${streak[0].toLocaleString({
-          month: 'numeric',
-          day: 'numeric',
-          year: 'numeric',
-        })}`
-      : 'No Streak';
+  const streakText = streakStart
+    ? `Streak ongoing since ${streakStart.toLocaleString({
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+      })}`
+    : 'No Streak';
 
   // Declare variable for Saturday in week that today falls into
   const nextSaturday = DateTime.utc()
@@ -64,7 +50,9 @@ export default function TaskDetail({ task, csrfToken }: PropTypes) {
         // Format date as numeric months and day
         return {
           date: day.toLocaleString({ day: 'numeric', month: 'numeric' }),
-          marked: days.some((completedDay) => completedDay.equals(day)),
+          marked: task.completedDays.some(
+            (completedDay) => completedDay.date.valueOf() === day.toMillis()
+          ),
         };
       })
     );
