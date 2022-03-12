@@ -24,7 +24,6 @@ model ActiveDays {
 model Day {
   id          BigInt      @id(map: "PK_42e726f6b72349f70b25598b50e") @default(autoincrement())
   date        DateTime    @unique(map: "UQ_e4662724cf9f92100be40f24ee0") @db.Date
-  tasksToDays TaskToDay[]
   tasks       NewTask[]
 
   @@map("day")
@@ -47,35 +46,6 @@ model NewTask {
   @@map("new_task")
 }
 
-model Task {
-  id           BigInt      @id(map: "PK_fb213f79ee45060ba925ecd576e") @default(autoincrement())
-  createdAt    DateTime    @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime    @updatedAt @db.Timestamp(6)
-  deletedAt    DateTime?   @db.Timestamp(6)
-  name         String      @db.VarChar
-  description  String?
-  startDate    DateTime    @default(dbgenerated("CURRENT_DATE")) @db.Date
-  reminderTime DateTime?   @db.Timetz(6)
-  daysToRepeat Int         @db.SmallInt
-  creatorId    BigInt
-  creator      User        @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_94fe6b3a5aec5f85427df4f8cd7")
-  tasksToDays  TaskToDay[]
-
-  @@map("task")
-}
-
-model TaskToDay {
-  taskId BigInt
-  dayId  BigInt
-  day    Day    @relation(fields: [dayId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3ec35ab07267cf7eaddae54b9e8")
-  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ffb64c1dfb28aedde4958e45432")
-
-  @@id([taskId, dayId], map: "PK_4bd5ea70d87f8c0b4b053e56799")
-  @@index([dayId], map: "IDX_3ec35ab07267cf7eaddae54b9e")
-  @@index([taskId], map: "IDX_ffb64c1dfb28aedde4958e4543")
-  @@map("task_completed_days_day")
-}
-
 model User {
   id           BigInt    @id(map: "PK_cace4a159ff9f2512dd42373760") @default(autoincrement())
   createdAt    DateTime  @default(now()) @db.Timestamp(6)
@@ -85,7 +55,6 @@ model User {
   lastName     String    @db.VarChar
   emailAddress String    @unique(map: "UQ_eea9ba2f6e1bb8cb89c4e672f62") @db.VarChar
   password     String    @db.VarChar
-  tasks        Task[]
   newTasks     NewTask[]
 
   @@map("user")
