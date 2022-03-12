@@ -59,12 +59,12 @@ export default function TaskDetail({ task, csrfToken }: PropTypes) {
     .map((weekInterval) =>
       weekInterval.splitBy({ days: 1 }).map((dayInterval) => {
         // Get start date of interval
-        const day = dayInterval.start;
+        const day = dayInterval.start.startOf('day');
 
         // Format date as numeric months and day
         return {
           date: day.toLocaleString({ day: 'numeric', month: 'numeric' }),
-          marked: streak.some((streakDay) => streakDay.equals(day)),
+          marked: days.some((completedDay) => completedDay.equals(day)),
         };
       })
     );
