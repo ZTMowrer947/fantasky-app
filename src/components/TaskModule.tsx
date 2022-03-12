@@ -7,28 +7,8 @@ interface PropTypes {
 
 export type TaskModuleProps = PropTypes;
 export default function TaskModule({ task }: PropTypes) {
-  // Map tasks into view model data
-  const {
-    sunday,
-    monday,
-    tuesday,
-    wednesday,
-    thursday,
-    friday,
-    saturday,
-  } = task.activeDays;
-  const activeDays = {
-    sun: sunday,
-    mon: monday,
-    tue: tuesday,
-    wed: wednesday,
-    thu: thursday,
-    fri: friday,
-    sat: saturday,
-  };
-
-  // Calculate active days
-  const activeDayString = formatDaysToRepeat(activeDays);
+  // Format active days
+  const activeDayString = formatDaysToRepeat(task.activeDays);
 
   // Render module
   return (

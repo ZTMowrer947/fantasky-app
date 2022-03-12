@@ -1,42 +1,32 @@
-interface DaysToRepeat {
-  sun: boolean;
-  mon: boolean;
-  tue: boolean;
-  wed: boolean;
-  thu: boolean;
-  fri: boolean;
-  sat: boolean;
-}
-
-const shortenedDaysOfWeek = {
-  sun: 'Su',
-  mon: 'M',
-  tue: 'Tu',
-  wed: 'W',
-  thu: 'Th',
-  fri: 'F',
-  sat: 'Sa',
-};
+import { ActiveDays } from '@prisma/client';
 
 // eslint-disable-next-line import/prefer-default-export
-export function formatDaysToRepeat(days: DaysToRepeat) {
-  if (Object.values(days).every((isActive) => isActive)) {
+export function formatDaysToRepeat(activeDays: Omit<ActiveDays, 'id'>) {
+  if (Object.values(activeDays).every((isActive) => isActive)) {
     return 'Every day';
   }
 
-  const { sun, mon, tue, wed, thu, fri, sat } = days;
+  const activeOnWeekends = activeDays.sunday && activeDays.saturday;
+  const activeOnWeekdays =
+    activeDays.monday &&
+    activeDays.tuesday &&
+    activeDays.wednesday &&
+    activeDays.thursday &&
+    activeDays.friday;
 
-  if (sun && sat) {
+  if (activeOnWeekends && !activeOnWeekdays) {
     return 'Every weekend';
   }
 
-  if (mon && tue && wed && thu && fri) {
+  if (activeOnWeekdays && !activeOnWeekends) {
     return 'Every weekday';
   }
 
-  const activeDays = Object.entries(days)
+  const activeDayStrings = Object.entries(activeDays)
     .filter(([, isActive]) => isActive)
-    .map(([day]) => shortenedDaysOfWeek[day as keyof DaysToRepeat]);
+    .map(([day]) =>
+      [day.substring(0, 1).toUpperCase(), day.substring(1)].join('')
+    );
 
-  return `${activeDays.join(', ')}`;
+  return `${activeDayStrings.join(', ')}`;
 }

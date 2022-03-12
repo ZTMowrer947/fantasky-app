@@ -10,26 +10,6 @@ interface PropTypes {
 
 export type TaskDetailProps = PropTypes;
 export default function TaskDetail({ task, csrfToken }: PropTypes) {
-  // Map tasks into view model data
-  const {
-    sunday,
-    monday,
-    tuesday,
-    wednesday,
-    thursday,
-    friday,
-    saturday,
-  } = task.activeDays;
-  const activeDays = {
-    sun: sunday,
-    mon: monday,
-    tue: tuesday,
-    wed: wednesday,
-    thu: thursday,
-    fri: friday,
-    sat: saturday,
-  };
-
   const days = task.completedDays.map((day) =>
     DateTime.fromJSDate(day.date, { zone: 'utc' })
   );
@@ -90,7 +70,7 @@ export default function TaskDetail({ task, csrfToken }: PropTypes) {
     );
 
   // Format active days
-  const activeDayString = formatDaysToRepeat(activeDays);
+  const activeDayString = formatDaysToRepeat(task.activeDays);
 
   return (
     <>
