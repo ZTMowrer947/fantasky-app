@@ -34,6 +34,8 @@ const taskPreview = Prisma.validator<Prisma.TaskSelect>()({
   },
 });
 
+export type TaskPreview = Prisma.TaskGetPayload<{ select: typeof taskPreview }>;
+
 // Query
 export default function fetchTasks(prisma: PrismaClient, creatorId: number) {
   return prisma.task.findMany({

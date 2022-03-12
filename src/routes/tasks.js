@@ -9,6 +9,7 @@ import { DateTime, Interval } from 'luxon';
 import validator from 'validator';
 
 import { formatDaysToRepeat } from '@/lib/helpers/days';
+import renderPage from '@/lib/helpers/renderPage';
 import createTask from '@/lib/queries/tasks/createTask';
 import deleteTask from '@/lib/queries/tasks/deleteTask';
 import editTask from '@/lib/queries/tasks/editTask';
@@ -16,6 +17,7 @@ import fetchTask from '@/lib/queries/tasks/fetchTask';
 import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
+import TaskList from '@/pages/tasks';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
 
@@ -30,39 +32,9 @@ taskRoutes
     asyncHandler(async (req, res) => {
       const tasks = await fetchTasks(prisma, Number.parseInt(req.user.id, 10));
 
-      // Map tasks into view model data
-      res.locals.tasks = tasks.map((task) => {
-        const {
-          sunday,
-          monday,
-          tuesday,
-          wednesday,
-          thursday,
-          friday,
-          saturday,
-        } = task.activeDays;
-        const activeDays = {
-          sun: sunday,
-          mon: monday,
-          tue: tuesday,
-          wed: wednesday,
-          thu: thursday,
-          fri: friday,
-          sat: saturday,
-        };
-
-        // Calculate active days
-        const activeDayString = formatDaysToRepeat(activeDays);
-
-        return {
-          id: task.id,
-          name: task.name,
-          activeDays: activeDayString,
-        };
-      });
-
       // Render task listing for user
-      res.render('tasks/index');
+      res.locals.title = 'Tasks | Fantasky';
+      res.send(renderPage(req, res, <TaskList tasks={tasks} />));
     })
   );
 
