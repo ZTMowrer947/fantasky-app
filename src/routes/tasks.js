@@ -5,10 +5,9 @@ import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { checkSchema, param, validationResult } from 'express-validator';
 import createError from 'http-errors';
-import { DateTime, Interval } from 'luxon';
+import { DateTime } from 'luxon';
 import validator from 'validator';
 
-import { formatDaysToRepeat } from '@/lib/helpers/days';
 import renderPage from '@/lib/helpers/renderPage';
 import createTask from '@/lib/queries/tasks/createTask';
 import deleteTask from '@/lib/queries/tasks/deleteTask';
@@ -18,6 +17,7 @@ import fetchTasks from '@/lib/queries/tasks/fetchTasks';
 import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import TaskList from '@/pages/tasks';
+import TaskDetail from '@/pages/tasks/[id]';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
 
@@ -143,101 +143,13 @@ taskRoutes
         throw createError(404, 'The requested task cannot be found.');
       }
 
-      const {
-        sunday,
-        monday,
-        tuesday,
-        wednesday,
-        thursday,
-        friday,
-        saturday,
-      } = task.activeDays;
-      const activeDays = {
-        sun: sunday,
-        mon: monday,
-        tue: tuesday,
-        wed: wednesday,
-        thu: thursday,
-        fri: friday,
-        sat: saturday,
-      };
-
-      // Calculate active days
-      const activeDayString = formatDaysToRepeat(activeDays);
-
-      const days = task.completedDays.map((day) =>
-        DateTime.fromJSDate(day.date, { zone: 'utc' })
-      );
-
-      const reversedStreakStartIndex = [...days]
-        .reverse()
-        .findIndex((day, idx, array) => {
-          const nextDay = idx < array.length - 1 ? array[idx + 1] : null;
-
-          return nextDay && day.plus({ days: 1 }).equals(nextDay);
-        });
-      const streakStartIndex =
-        reversedStreakStartIndex >= 0
-          ? days.length - 1 - reversedStreakStartIndex
-          : reversedStreakStartIndex;
-
-      const streak = days.slice(streakStartIndex);
-
-      // Determine streak text
-      const streakText =
-        streak.length > 0
-          ? `Streak ongoing since ${streak[0].toLocaleString(
-              DateTime.DATE_SHORT
-            )}`
-          : 'No Streak';
-
-      // Declare variable for Saturday in week that today falls into
-      const nextSaturday = DateTime.utc()
-        .endOf('week')
-        .startOf('day')
-        .minus({ days: 1 });
-
-      // Get the Sunday after the present/future Saturday, then back up three weeks
-      const sundayThreeWeeksAgo = nextSaturday.minus({ days: 20 });
-
-      // Define the interval between the Sunday three weeks ago and the present/future Saturday
-      const chartInterval = Interval.fromDateTimes(
-        sundayThreeWeeksAgo,
-        nextSaturday.plus({ days: 1 })
-      );
-
-      // Split the interval up by days, then reverse it
-      const pastThreeWeeks = chartInterval
-        .splitBy({ weeks: 1 })
-        .map((weekInterval) =>
-          weekInterval.splitBy({ days: 1 }).map((dayInterval) => {
-            // Get start date of interval
-            const day = dayInterval.start;
-
-            // Format date as numeric months and day
-            return {
-              date: day.toLocaleString({ day: 'numeric', month: 'numeric' }),
-              marked: streak.some((streakDay) => streakDay.equals(day)),
-            };
-          })
-        );
-
-      // Define task view data
-      res.locals.task = {
-        id: task.id,
-        name: task.name,
-        description: task.description,
-        activeDays: activeDayString,
-        streak: streakText,
-      };
-
-      res.locals.activity = pastThreeWeeks;
-
-      // Attach CSRF token to view locals
-      res.locals.csrfToken = req.csrfToken();
+      // Get CSRF token
+      const csrfToken = req.csrfToken();
 
       // Render task detail view
-      res.render('tasks/detail');
+      res.send(
+        renderPage(req, res, <TaskDetail task={task} csrfToken={csrfToken} />)
+      );
     })
   )
   .post(
