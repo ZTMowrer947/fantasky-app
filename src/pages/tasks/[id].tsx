@@ -24,20 +24,18 @@ export default function TaskDetail({ task, csrfToken }: PropTypes) {
       })}`
     : 'No Streak';
 
-  // Declare variable for Saturday in week that today falls into
-  const nextSaturday = DateTime.utc()
-    .endOf('week')
-    .startOf('day')
-    .minus({ days: 1 });
+  // Find next Sunday that is not today
+  const today = DateTime.utc().startOf('day');
+  const sundayOfWeek = today.endOf('week').startOf('day');
+  const nextSunday = today.equals(sundayOfWeek)
+    ? sundayOfWeek.plus({ week: 1 })
+    : sundayOfWeek;
 
-  // Get the Sunday after the present/future Saturday, then back up three weeks
-  const sundayThreeWeeksAgo = nextSaturday.minus({ days: 20 });
+  // Back up three weeks
+  const sundayThreeWeeksAgo = nextSunday.minus({ week: 3 });
 
   // Define the interval between the Sunday three weeks ago and the present/future Saturday
-  const chartInterval = Interval.fromDateTimes(
-    sundayThreeWeeksAgo,
-    nextSaturday.plus({ days: 1 })
-  );
+  const chartInterval = Interval.fromDateTimes(sundayThreeWeeksAgo, nextSunday);
 
   // Split the interval up by days, then reverse it
   const pastThreeWeeks = chartInterval
