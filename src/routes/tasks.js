@@ -51,6 +51,8 @@ taskRoutes
     // Get CSRF token
     const csrfToken = req.csrfToken();
 
+    // Render task creation form
+    res.locals.title = 'New Task | Fantasky';
     res.send(
       renderPage(
         req,
@@ -120,7 +122,8 @@ taskRoutes
         // Get CSRF token
         const csrfToken = req.csrfToken();
 
-        // Re-render form
+        // Render task creation form
+        res.locals.title = 'New Task | Fantasky';
         res.send(
           renderPage(
             req,
@@ -174,6 +177,7 @@ taskRoutes
       const csrfToken = req.csrfToken();
 
       // Render task detail view
+      res.locals.title = 'Task Details | Fantasky';
       res.send(
         renderPage(req, res, <TaskDetail task={task} csrfToken={csrfToken} />)
       );
@@ -246,6 +250,7 @@ taskRoutes
       const csrfToken = req.csrfToken();
 
       // Render task modification form
+      res.locals.title = 'Edit Task | Fantasky';
       res.send(
         renderPage(
           req,
@@ -321,6 +326,7 @@ taskRoutes
         const csrfToken = req.csrfToken();
 
         // Re-render task modification form
+        res.locals.title = 'Edit Task | Fantasky';
         res.send(
           renderPage(
             req,
@@ -390,6 +396,7 @@ taskRoutes
       const csrfToken = req.csrfToken();
 
       // Render deletion confirmation
+      res.locals.title = 'DELETING Task | Fantasky';
       res.send(
         renderPage(
           req,

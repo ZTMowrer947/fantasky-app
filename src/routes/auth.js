@@ -28,6 +28,7 @@ authRoutes
     const csrfToken = req.csrfToken();
 
     // Render login form
+    res.locals.title = 'Log In | Fantasky';
     res.send(
       renderPage(
         req,
@@ -53,6 +54,7 @@ authRoutes
     const csrfToken = req.csrfToken();
 
     // Render registration form
+    res.locals.title = 'Register | Fantasky';
     res.send(renderPage(req, res, <Register csrfToken={csrfToken} />));
   })
   .post(
@@ -81,6 +83,7 @@ authRoutes
         const csrfToken = req.csrfToken();
 
         // Re-render registration form
+        res.locals.title = 'Register | Fantasky';
         res.send(
           renderPage(
             req,
