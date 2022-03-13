@@ -18,9 +18,9 @@ import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import TaskList from '@/pages/tasks';
 import TaskDetail from '@/pages/tasks/[id]';
-import DeleteTask from '@/pages/tasks/delete';
-import EditTask from '@/pages/tasks/edit';
-import NewTask from '@/pages/tasks/new';
+import DeleteTask from '@/pages/tasks/[id]/delete';
+import EditTask from '@/pages/tasks/[id]/edit';
+import NewTask from '@/pages/tasks/[id]/new';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
 
