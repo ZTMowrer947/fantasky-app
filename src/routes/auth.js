@@ -6,8 +6,10 @@ import { body, checkSchema, validationResult } from 'express-validator';
 import passport from 'passport';
 
 import UpsertUserDto from '@/dto/UpsertUserDto';
+import renderPage from '@/lib/helpers/renderPage';
 import createUser from '@/lib/queries/user/createUser';
 import csrf from '@/middleware/csrf';
+import Login from '@/pages/login';
 import prisma from '@/prisma';
 import { frontendUserValidationSchema } from '@/validation/user';
 
@@ -23,14 +25,17 @@ authRoutes
     // If there is a failure message, set status to 401
     if (failureMessage) res.status(401);
 
-    // Get flash message and attach to view locals
-    res.locals.failureMessage = failureMessage;
-
-    // Attach CSRF token to view locals
-    res.locals.csrfToken = req.csrfToken();
+    // Get CSRF token
+    const csrfToken = req.csrfToken();
 
     // Render login form
-    res.render('auth/login');
+    res.send(
+      renderPage(
+        req,
+        res,
+        <Login csrfToken={csrfToken} failureFlash={failureMessage} />
+      )
+    );
   })
   .post(
     csrf,
