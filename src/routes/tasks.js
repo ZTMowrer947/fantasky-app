@@ -18,6 +18,7 @@ import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import TaskList from '@/pages/tasks';
 import TaskDetail from '@/pages/tasks/[id]';
+import DeleteTask from '@/pages/tasks/delete';
 import NewTask from '@/pages/tasks/new';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
@@ -368,17 +369,23 @@ taskRoutes
         throw createError(404, 'The requested task cannot be found.');
       }
 
-      // Attach needed task data for view
-      res.locals.task = {
+      // Extract needed task data for view
+      const taskInfo = {
         id: task.id,
         name: task.name,
       };
 
-      // Attach CSRF token to view locals
-      res.locals.csrfToken = req.csrfToken();
+      // Get CSRF token
+      const csrfToken = req.csrfToken();
 
       // Render deletion confirmation
-      res.render('tasks/delete');
+      res.send(
+        renderPage(
+          req,
+          res,
+          <DeleteTask csrfToken={csrfToken} task={taskInfo} />
+        )
+      );
     })
   )
   .post(
