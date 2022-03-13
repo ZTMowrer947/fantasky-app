@@ -1,7 +1,19 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import argon2 from 'argon2';
 
-import UpsertUserDto from '@/dto/UpsertUserDto';
+// Mutation typing
+const userCreateViewModel = Prisma.validator<Prisma.UserArgs>()({
+  select: {
+    firstName: true,
+    lastName: true,
+    emailAddress: true,
+    password: true,
+  },
+});
+
+export type UserCreateViewModel = Prisma.UserGetPayload<
+  typeof userCreateViewModel
+>;
 
 // Mutation selection
 const userEntry = Prisma.validator<Prisma.UserSelect>()({
@@ -12,7 +24,7 @@ const userEntry = Prisma.validator<Prisma.UserSelect>()({
 });
 
 // Mutation input
-const newUser = async (userData: UpsertUserDto) =>
+const newUser = async (userData: UserCreateViewModel) =>
   Prisma.validator<Prisma.UserCreateInput>()({
     firstName: userData.firstName,
     lastName: userData.lastName,
@@ -28,7 +40,7 @@ const newUser = async (userData: UpsertUserDto) =>
 // Mutation
 export default async function createUser(
   prisma: PrismaClient,
-  userData: UpsertUserDto
+  userData: UserCreateViewModel
 ) {
   return prisma.user.create({
     data: await newUser(userData),

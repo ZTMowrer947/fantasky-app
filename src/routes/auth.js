@@ -1,15 +1,14 @@
 // Imports
-import { plainToClass } from 'class-transformer';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { body, checkSchema, validationResult } from 'express-validator';
 import passport from 'passport';
 
-import UpsertUserDto from '@/dto/UpsertUserDto';
 import renderPage from '@/lib/helpers/renderPage';
 import createUser from '@/lib/queries/user/createUser';
 import csrf from '@/middleware/csrf';
 import Login from '@/pages/login';
+import Register from '@/pages/register';
 import prisma from '@/prisma';
 import { frontendUserValidationSchema } from '@/validation/user';
 
@@ -50,11 +49,11 @@ authRoutes
 authRoutes
   .route('/register')
   .get(csrf, (req, res) => {
-    // Attach CSRF token to view locals
-    res.locals.csrfToken = req.csrfToken();
+    // Get CSRF token
+    const csrfToken = req.csrfToken();
 
     // Render registration form
-    res.render('auth/register');
+    res.send(renderPage(req, res, <Register csrfToken={csrfToken} />));
   })
   .post(
     csrf,
@@ -68,21 +67,31 @@ authRoutes
         // Set status to 400
         res.status(400);
 
-        // Attach errors to view locals
-        res.locals.errors = errors.mapped();
+        // Map validation errors
+        const errorMap = errors.mapped();
 
-        // Attach form values from previous submission, excluding password fields
-        res.locals.values = {
+        // Retrieve form values from previous submission, excluding password fields
+        const prevValues = {
           ...req.body,
-          password: '',
-          confirmPassword: '',
+          password: undefined,
+          confirmPassword: undefined,
         };
 
-        // Attach CSRF token to view locals
-        res.locals.csrfToken = req.csrfToken();
+        // Get CSRF token
+        const csrfToken = req.csrfToken();
 
         // Re-render registration form
-        res.render('auth/register');
+        res.send(
+          renderPage(
+            req,
+            res,
+            <Register
+              csrfToken={csrfToken}
+              errors={errorMap}
+              prevValues={prevValues}
+            />
+          )
+        );
       } else {
         // If we got here, proceed to next handler
         next();
@@ -90,12 +99,10 @@ authRoutes
     }),
     asyncHandler(async (req, res, next) => {
       // Define user DTO from form data
-      const userData = req.body;
-
-      const userDto = plainToClass(UpsertUserDto, userData);
+      const { confirmPassword, ...userData } = req.body;
 
       // Create new user
-      const newUser = await createUser(prisma, userDto);
+      const newUser = await createUser(prisma, userData);
 
       // Log in new user
       req.login(newUser, (err) => {
