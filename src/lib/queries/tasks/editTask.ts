@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
-import UpsertTaskDto from '@/dto/UpsertTaskDto';
+import { TaskCreateViewModel as TaskUpdateViewModel } from './createTask';
 
 // Mutation filtering
 const taskHasId = (id: number | bigint) =>
@@ -14,30 +14,25 @@ const taskIdOnly = Prisma.validator<Prisma.TaskSelect>()({
 });
 
 // Mutation input
-const modifyTask = (taskData: UpsertTaskDto) =>
+const modifyTask = (taskData: TaskUpdateViewModel) =>
   Prisma.validator<Prisma.TaskUpdateInput>()({
     name: taskData.name,
     description: taskData.description,
     startDate: taskData.startDate,
     reminderTime: taskData.reminderTime,
     activeDays: {
-      create: {
-        sunday: taskData.activeDays.sun,
-        monday: taskData.activeDays.mon,
-        tuesday: taskData.activeDays.tue,
-        wednesday: taskData.activeDays.wed,
-        thursday: taskData.activeDays.thu,
-        friday: taskData.activeDays.fri,
-        saturday: taskData.activeDays.sat,
+      update: {
+        ...taskData.activeDays,
       },
     },
   });
 
 // Mutation
+export type { TaskUpdateViewModel };
 export default function editTask(
   prisma: PrismaClient,
   taskId: number | bigint,
-  taskData: UpsertTaskDto
+  taskData: TaskUpdateViewModel
 ) {
   return prisma.task.update({
     where: taskHasId(taskId),

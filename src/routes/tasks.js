@@ -19,6 +19,7 @@ import csrf from '@/middleware/csrf';
 import TaskList from '@/pages/tasks';
 import TaskDetail from '@/pages/tasks/[id]';
 import DeleteTask from '@/pages/tasks/delete';
+import EditTask from '@/pages/tasks/edit';
 import NewTask from '@/pages/tasks/new';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
@@ -231,6 +232,38 @@ taskRoutes
         throw createError(404, 'The requested task cannot be found.');
       }
 
+      // Retrieve values from previous submission
+      const prevValues = {
+        name: task.name,
+        description: task.description,
+        startDate: DateTime.fromJSDate(task.startDate, {
+          zone: 'utc',
+        }).toISODate(),
+        activeDays: task.activeDays,
+      };
+
+      // Get CSRF token
+      const csrfToken = req.csrfToken();
+
+      // Render task modification form
+      res.send(
+        renderPage(
+          req,
+          res,
+          <EditTask
+            csrfToken={csrfToken}
+            prevValues={prevValues}
+            taskId={task.id}
+          />
+        )
+      );
+    })
+  )
+  .post(
+    ensureLoggedIn('/login'),
+    csrf,
+    (req, res, next) => {
+      // Get active days
       const {
         sunday,
         monday,
@@ -239,53 +272,20 @@ taskRoutes
         thursday,
         friday,
         saturday,
-      } = task.activeDays;
-      const activeDays = {
-        sun: sunday,
-        mon: monday,
-        tue: tuesday,
-        wed: wednesday,
-        thu: thursday,
-        fri: friday,
-        sat: saturday,
-      };
-
-      // Define local data for view
-      res.locals.values = {
-        name: task.name,
-        description: task.description,
-        startDate: DateTime.fromJSDate(task.startDate, {
-          zone: 'utc',
-        }).toISODate(),
-        ...activeDays,
-      };
-      res.locals.taskId = task.id;
-
-      // Attach CSRF token to view locals
-      res.locals.csrfToken = req.csrfToken();
-
-      // Render task modification form
-      res.render('tasks/edit');
-    })
-  )
-  .post(
-    ensureLoggedIn('/login'),
-    csrf,
-    (req, res, next) => {
-      // Get active days
-      const { sun, mon, tue, wed, thu, fri, sat, ...baseTask } = req.body;
+        ...baseTask
+      } = req.body;
 
       // Rearrange request body and sanitize active days
       req.body = {
         ...baseTask,
         activeDays: {
-          sun: validator.toBoolean(sun ?? ''),
-          mon: validator.toBoolean(mon ?? ''),
-          tue: validator.toBoolean(tue ?? ''),
-          wed: validator.toBoolean(wed ?? ''),
-          thu: validator.toBoolean(thu ?? ''),
-          fri: validator.toBoolean(fri ?? ''),
-          sat: validator.toBoolean(sat ?? ''),
+          sunday: validator.toBoolean(sunday ?? ''),
+          monday: validator.toBoolean(monday ?? ''),
+          tuesday: validator.toBoolean(tuesday ?? ''),
+          wednesday: validator.toBoolean(wednesday ?? ''),
+          thursday: validator.toBoolean(thursday ?? ''),
+          friday: validator.toBoolean(friday ?? ''),
+          saturday: validator.toBoolean(saturday ?? ''),
         },
       };
 
@@ -303,25 +303,36 @@ taskRoutes
         res.status(400);
 
         // Attach errors to view locals
-        res.locals.errors = errors.mapped();
+        const errorsMap = errors.mapped();
 
-        // Attach form values from previous submission
-        res.locals.values = {
-          name: validator.unescape(req.body.name ?? ''),
-          description: validator.unescape(req.body.description ?? ''),
+        // Retrieve values from previous submission
+        const prevValues = {
+          name: req.body.name ?? '',
+          description: req.body.description ?? '',
           startDate: req.body?.startDate
             ? DateTime.fromJSDate(req.body.startDate, {
                 zone: 'utc',
               }).toISODate()
-            : undefined,
-          ...req.body.activeDays,
+            : DateTime.utc().toISODate(),
+          activeDays: req.body.activeDays,
         };
 
-        // Attach CSRF token to view locals
-        res.locals.csrfToken = req.csrfToken();
+        // Get CSRF token
+        const csrfToken = req.csrfToken();
 
         // Re-render task modification form
-        res.render('tasks/edit');
+        res.send(
+          renderPage(
+            req,
+            res,
+            <EditTask
+              csrfToken={csrfToken}
+              prevValues={prevValues}
+              taskId={req.params.id}
+              errors={errorsMap}
+            />
+          )
+        );
       } else {
         // Otherwise, proceed to next handler
         next();
