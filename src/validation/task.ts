@@ -8,12 +8,10 @@ const taskValidationSchema: Schema = {
       errorMessage: 'Name is required',
     },
     trim: true,
-    escape: true,
   },
   description: {
     in: ['body'],
     trim: true,
-    escape: true,
   },
   activeDays: {
     in: ['body'],

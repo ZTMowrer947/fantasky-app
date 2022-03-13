@@ -18,6 +18,7 @@ import toggleActivityForDay from '@/lib/queries/tasks/toggleActivityForDay';
 import csrf from '@/middleware/csrf';
 import TaskList from '@/pages/tasks';
 import TaskDetail from '@/pages/tasks/[id]';
+import NewTask from '@/pages/tasks/new';
 import prisma from '@/prisma';
 import { taskValidationSchema } from '@/validation/task';
 
@@ -41,34 +42,48 @@ taskRoutes
 taskRoutes
   .route('/new')
   .get(ensureLoggedIn('/login'), csrf, (req, res) => {
-    res.locals.values = {
+    const initialValues = {
       startDate: DateTime.utc().toISODate(),
     };
 
-    // Attach CSRF token to view locals
-    res.locals.csrfToken = req.csrfToken();
+    // Get CSRF token
+    const csrfToken = req.csrfToken();
 
-    // Render task creation form
-    res.render('tasks/new');
+    res.send(
+      renderPage(
+        req,
+        res,
+        <NewTask csrfToken={csrfToken} prevValues={initialValues} />
+      )
+    );
   })
   .post(
     ensureLoggedIn('/login'),
     csrf,
     (req, res, next) => {
       // Get active days
-      const { sun, mon, tue, wed, thu, fri, sat, ...baseTask } = req.body;
+      const {
+        sunday,
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
+        ...baseTask
+      } = req.body;
 
       // Rearrange request body and sanitize active days
       req.body = {
         ...baseTask,
         activeDays: {
-          sun: validator.toBoolean(sun ?? ''),
-          mon: validator.toBoolean(mon ?? ''),
-          tue: validator.toBoolean(tue ?? ''),
-          wed: validator.toBoolean(wed ?? ''),
-          thu: validator.toBoolean(thu ?? ''),
-          fri: validator.toBoolean(fri ?? ''),
-          sat: validator.toBoolean(sat ?? ''),
+          sunday: validator.toBoolean(sunday ?? ''),
+          monday: validator.toBoolean(monday ?? ''),
+          tuesday: validator.toBoolean(tuesday ?? ''),
+          wednesday: validator.toBoolean(wednesday ?? ''),
+          thursday: validator.toBoolean(thursday ?? ''),
+          friday: validator.toBoolean(friday ?? ''),
+          saturday: validator.toBoolean(saturday ?? ''),
         },
       };
 
@@ -85,26 +100,36 @@ taskRoutes
         // Set status to 400
         res.status(400);
 
-        // Attach errors to view locals
-        res.locals.errors = errors.mapped();
+        // Map validation errors
+        const errorMap = errors.mapped();
 
-        // Attach form values from previous submission
-        res.locals.values = {
-          name: validator.unescape(req.body.name ?? ''),
-          description: validator.unescape(req.body.description ?? ''),
+        // Retrieve values from previous submission
+        const prevValues = {
+          name: req.body.name ?? '',
+          description: req.body.description ?? '',
           startDate: req.body?.startDate
             ? DateTime.fromJSDate(req.body.startDate, {
                 zone: 'utc',
               }).toISODate()
-            : undefined,
+            : DateTime.utc().toISODate(),
           ...req.body.activeDays,
         };
 
-        // Attach CSRF token to view locals
-        res.locals.csrfToken = req.csrfToken();
+        // Get CSRF token
+        const csrfToken = req.csrfToken();
 
-        // Re-render task creation form
-        res.render('tasks/new');
+        // Re-render form
+        res.send(
+          renderPage(
+            req,
+            res,
+            <NewTask
+              csrfToken={csrfToken}
+              prevValues={prevValues}
+              errors={errorMap}
+            />
+          )
+        );
       } else {
         // Otherwise, proceed to next handler
         next();
