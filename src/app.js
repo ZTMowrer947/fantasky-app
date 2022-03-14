@@ -11,7 +11,6 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
 
-import renderPage from '@/lib/helpers/renderPage';
 import fetchUser from '@/lib/queries/user/fetchUser';
 
 import attachLoginStatusToView from './middleware/attachLoginStatusToView';
@@ -139,12 +138,6 @@ passport.deserializeUser(async (emailAddress, done) => {
 
 // Frontend routes
 app.use(frontendRoutes);
-
-app.get('/react-test', (req, res) => {
-  res.locals.title = 'React test';
-
-  res.send(renderPage(req, res, <h1>React test</h1>));
-});
 
 app.use((req, res, next) => {
   // Redirect all uncaught routes to 404 page
