@@ -6,7 +6,6 @@ import session from 'express-session';
 import helmet from 'helmet';
 import createError from 'http-errors';
 import Redis from 'ioredis';
-import nunjucks from 'nunjucks';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import path from 'path';
@@ -29,19 +28,11 @@ const app = express();
 
 // Paths
 const projectRootDir = path.resolve(__dirname, '..');
-const viewDir = path.resolve(projectRootDir, 'views');
 const publicDir = path.resolve(projectRootDir, 'public');
 
 // App configuration
 app.disable('x-powered-by');
 
-nunjucks.configure(viewDir, {
-  autoescape: true,
-  watch: true,
-  express: app,
-});
-
-app.set('view engine', 'njk');
 app.set('trust proxy', 'loopback');
 
 // Middleware
