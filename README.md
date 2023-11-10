@@ -8,4 +8,4 @@ This application was orginally created by the Coding Club Task Force of the [Wes
 - Chase Steorts
 - Caleb Newell
 
-This in-full rewrite of the application was done by Zack Mowrer.
+This in-full rewrite of the application is being done by Zack Mowrer.
