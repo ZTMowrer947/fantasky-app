@@ -15,13 +15,13 @@ dependencies:
 devDependencies:
   '@preact/preset-vite':
     specifier: ^2.5.0
-    version: 2.6.0(@babel/core@7.23.2)(preact@10.18.2)(vite@4.5.0)
+    version: 2.6.0(@babel/core@7.23.2)(preact@10.18.2)(vite@4.5.1)
   typescript:
     specifier: ^5.0.2
     version: 5.2.2
   vite:
-    specifier: ^4.4.5
-    version: 4.5.0
+    specifier: ^4.5.1
+    version: 4.5.1
 
 packages:
 
@@ -498,7 +498,7 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@preact/preset-vite@2.6.0(@babel/core@7.23.2)(preact@10.18.2)(vite@4.5.0):
+  /@preact/preset-vite@2.6.0(@babel/core@7.23.2)(preact@10.18.2)(vite@4.5.1):
     resolution: {integrity: sha512-5nztNzXbCpqyVum/K94nB2YQ5PTnvWdz4u7/X0jc8+kLyskSSpkNUxLQJeI90zfGSFIX1Ibj2G2JIS/mySHWYQ==}
     peerDependencies:
       '@babel/core': 7.x
@@ -507,13 +507,13 @@ packages:
       '@babel/core': 7.23.2
       '@babel/plugin-transform-react-jsx': 7.22.15(@babel/core@7.23.2)
       '@babel/plugin-transform-react-jsx-development': 7.22.5(@babel/core@7.23.2)
-      '@prefresh/vite': 2.4.3(preact@10.18.2)(vite@4.5.0)
+      '@prefresh/vite': 2.4.3(preact@10.18.2)(vite@4.5.1)
       '@rollup/pluginutils': 4.2.1
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.23.2)
       debug: 4.3.4
       kolorist: 1.8.0
       resolve: 1.22.8
-      vite: 4.5.0
+      vite: 4.5.1
     transitivePeerDependencies:
       - preact
       - supports-color
@@ -535,7 +535,7 @@ packages:
     resolution: {integrity: sha512-KtC/fZw+oqtwOLUFM9UtiitB0JsVX0zLKNyRTA332sqREqSALIIQQxdUCS1P3xR/jT1e2e8/5rwH6gdcMLEmsQ==}
     dev: true
 
-  /@prefresh/vite@2.4.3(preact@10.18.2)(vite@4.5.0):
+  /@prefresh/vite@2.4.3(preact@10.18.2)(vite@4.5.1):
     resolution: {integrity: sha512-diQ8AW+Y2i1QEhO64t2hhV8WFP9X0/NAxuSd9eRlVyS3LOs3RgGOwjOmLoJqwCmIbdq5Szq983gO+xdW/l0G6A==}
     peerDependencies:
       preact: ^10.4.0
@@ -547,7 +547,7 @@ packages:
       '@prefresh/utils': 1.2.0
       '@rollup/pluginutils': 4.2.1
       preact: 10.18.2
-      vite: 4.5.0
+      vite: 4.5.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -868,8 +868,8 @@ packages:
       picocolors: 1.0.0
     dev: true
 
-  /vite@4.5.0:
-    resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
+  /vite@4.5.1:
+    resolution: {integrity: sha512-AXXFaAJ8yebyqzoNB9fu2pHoo/nWX+xZlaRwoeYUxEqBO+Zj4msE5G+BhGBll9lYEKv9Hfks52PAF2X7qDYXQA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
